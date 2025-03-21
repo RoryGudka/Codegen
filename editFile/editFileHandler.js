@@ -22,7 +22,7 @@ const editFileHandler = async ({
   try {
     const assistant = await openai.beta.assistants.create({
       name: "Edit File Assistant",
-      instructions: `You are a coding assistant specially designed to edit files with given instructions and context files. Make sure to follow the instructions carefully, and do NOT add placeholder text like \`\/\/Old code\/\/\`. Respond with the edited code only.\n\n--------------------\nFILE TO EDIT: ${editFilePath}\n--------------------\n\n${editFileContent}\n\n${contextFileContents
+      instructions: `You are a coding assistant specially designed to edit files with given instructions and context files. Make sure to follow the instructions carefully, and do NOT add placeholder text like \`\/\/Old code\/\/\`. Respond with the edited code only, not in a code block, and with no additional text.\n\n--------------------\nFILE TO EDIT: ${editFilePath}\n--------------------\n\n${editFileContent}\n\n${contextFileContents
         .map(
           ([path, content]) =>
             `--------------------\nCONTEXT FILE:${path}\n--------------------\n\n${content}`
