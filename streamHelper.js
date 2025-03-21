@@ -26,7 +26,7 @@ async function handleAssistantStream(stream, id, handleToolCall = null) {
 
   // Create output file path
   const outputPath = path.join(outputsDir, `output-${id}.txt`);
-  const writeStream = fs.createWriteStream(outputPath);
+  const writeStream = fs.createWriteStream(outputPath, { flags: "a" });
 
   let str = "";
 

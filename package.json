@@ -4,10 +4,11 @@
   "description": "Script to create an OpenAI assistant with tool inputs",
   "main": "create_assistant.js",
   "scripts": {
-    "start": "node create_assistant.js"
+    "start": "node init.js"
   },
   "dependencies": {
     "dotenv": "^16.4.1",
+    "ignore": "^7.0.3",
     "openai": "^4.28.0"
   },
   "devDependencies": {

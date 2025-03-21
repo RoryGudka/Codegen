@@ -6,7 +6,7 @@ const askFileQuestionTool = {
     parameters: {
       type: "object",
       properties: {
-        paths: {
+        filePaths: {
           type: "array",
           items: {
             type: "string",

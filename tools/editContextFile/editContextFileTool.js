@@ -7,12 +7,12 @@ const editContextFileTool = {
     parameters: {
       type: "object",
       properties: {
-        information: {
+        update: {
           type: "string",
-          description: "Information to save to the context file",
+          description: "Update request for the context file",
         },
       },
-      required: ["information"],
+      required: ["update"],
     },
   },
 };

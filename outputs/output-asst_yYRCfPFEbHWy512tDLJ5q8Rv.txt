@@ -1,1 +1,0 @@
-The content of `getFileStructure.js` needs to be analyzed in order to convert it into a TypeScript file with appropriate types. Let's retrieve the information about the contents of the file so we can proceed with the conversion.

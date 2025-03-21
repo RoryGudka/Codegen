@@ -2,27 +2,32 @@ require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
-const { openai, handleAssistantStream } = require("../streamHelper");
+const { openai, handleAssistantStream } = require("../../streamHelper");
 
-const editFileHandler = async ({
+const createFileHandler = async ({
   contextFilePaths = [],
-  editFilePath,
+  newFilePath,
   instructions,
 }) => {
-  const fullEditFilePath = path.join(process.cwd(), editFilePath);
+  const fullNewFilePath = path.join(process.cwd(), newFilePath);
   const fullContextFilePaths = contextFilePaths.map((p) =>
     path.join(process.cwd(), p)
   );
+
+  // Check if file already exists
+  if (fs.existsSync(fullNewFilePath)) {
+    return "File already exists. Try again with editFile or corrected file path.";
+  }
+
   const contextFileContents = fullContextFilePaths.map((path) => [
     path,
     fs.readFileSync(path, "utf8"),
   ]);
-  const editFileContent = fs.readFileSync(fullEditFilePath, "utf8");
 
   try {
     const assistant = await openai.beta.assistants.create({
-      name: "Edit File Assistant",
-      instructions: `You are a coding assistant specially designed to edit files with given instructions and context files. Make sure to follow the instructions carefully, and do NOT add placeholder text like \`\/\/Old code\/\/\`. Respond with the edited code only, not in a code block, and with no additional text.\n\n--------------------\nFILE TO EDIT: ${editFilePath}\n--------------------\n\n${editFileContent}\n\n${contextFileContents
+      name: "Create File Assistant",
+      instructions: `You are a coding assistant specially designed to create new files with given instructions and context files. Make sure to follow the instructions carefully, and do NOT add placeholder text like \`\/\/Insert code here\/\/\`. Respond with the new code only, not in a code block, and with no additional text.\n\n--------------------\nNEW FILE TO CREATE: ${newFilePath}\n--------------------\n\n${contextFileContents
         .map(
           ([path, content]) =>
             `--------------------\nCONTEXT FILE:${path}\n--------------------\n\n${content}`
@@ -49,17 +54,23 @@ const editFileHandler = async ({
       stream: true,
     });
 
-    console.log(assistant.id);
-    console.log(stream);
     const content = await handleAssistantStream(stream, assistant.id);
-    fs.writeFileSync(fullEditFilePath, content);
 
-    return "File edited successfully";
+    // Create the directory if it doesn't exist
+    const dir = path.dirname(fullNewFilePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(fullNewFilePath, content);
+
+    return "File created successfully";
   } catch (error) {
-    console.error("Error creating assistant:", error);
+    console.error("Error creating file:", error);
+    throw error;
   }
 };
 
 module.exports = {
-  editFileHandler,
+  createFileHandler,
 };

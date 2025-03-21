@@ -20,7 +20,7 @@ async function main() {
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
       content:
-        "Edit getFileStructure.ts to include a function that returns the file structure of the current directory",
+        "Initialize the context file for the codebase with any information you think is important enough to justify",
     });
 
     // Run the assistant
@@ -30,9 +30,7 @@ async function main() {
     });
 
     // Wait for completion and stream the response
-    let outputPath = await streamToFile(stream, assistant.id);
-
-    console.log(`Response has been streamed to: ${outputPath}`);
+    await streamToFile(stream, assistant.id);
 
     // Clean up - delete the assistant
     await openai.beta.assistants.del(assistant.id);

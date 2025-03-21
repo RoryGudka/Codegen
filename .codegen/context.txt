@@ -1,0 +1,20 @@
+## Codebase Overview
+
+This codebase provides a comprehensive framework for managing files and utilizing AI functionalities. The primary components include tools for file creation (`createFileTool.js`), editing (`editFileTool.js`), reading (`readFileTool.js`), and querying specific files with questions (`askFileQuestionTool.js`).
+
+## Key Components:
+
+1. **File Management Tools:**
+   - **createFileTool.js:** Creates new files with specified content if they do not exist, ensuring safe file creation.
+   - **editFileTool.js:** Edits existing files based on detailed instructions and context, facilitating file updates.
+   - **readFileTool.js:** Reads and returns contents of specified files, handling file access tasks.
+
+2. **AI Integration:**
+   - **openai.js:** Initializes and configures the OpenAI client for AI services, supporting natural language processing and other AI-related tasks.
+   - **init.js:** Sets up an assistant using OpenAI services for communication and context establishment within tasks.
+
+3. **Context and Structure Management:**
+   - **getContextFile.js:** Retrieves and returns content from the context file, informing about repository setup or application context.
+   - **getFileStructure.js:** Generates file structure representation, respecting `.gitignore` rules for accurate directory overview.
+
+These components work in tandem to support dynamic interactions, automated file management, and AI-driven functionalities throughout the codebase.

@@ -1,1 +1,0 @@
-I have added a function named `getCurrentDirectoryFileStructure` to the `getFileStructure.ts` file. This function will return the file structure of the current directory using Node.js modules.

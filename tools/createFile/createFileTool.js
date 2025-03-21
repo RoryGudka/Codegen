@@ -1,8 +1,9 @@
-const editFileTool = {
+const createFileTool = {
   type: "function",
   function: {
-    name: "editFile",
-    description: "",
+    name: "createFile",
+    description:
+      "Creates a new file with the given content. Throws an error if the file already exists.",
     parameters: {
       type: "object",
       properties: {
@@ -14,20 +15,21 @@ const editFileTool = {
           },
           description: "The paths to the files that should be used as context",
         },
-        editFilePath: {
+        newFilePath: {
           type: "string",
-          description: "The path to the file to edit",
+          description: "The path where the new file should be created",
         },
         instructions: {
           type: "string",
-          description: "How this file should be edited",
+          description:
+            "Instructions for what content should be in the new file",
         },
       },
-      required: ["editFilePath", "instructions"],
+      required: ["newFilePath", "instructions"],
     },
   },
 };
 
 module.exports = {
-  editFileTool,
+  createFileTool,
 };

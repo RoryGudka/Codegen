@@ -6,16 +6,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function createCodebaseQuestionAssistant({
-  name,
-  custom_instructions,
-  model = "gpt-4-turbo-preview",
-  programming_languages = ["javascript", "python", "typescript"],
-}) {
+async function createCodebaseQuestionAssistant() {
   try {
-    const assistant = await openai.beta.assistants.create({
-      name: name,
-      instructions: custom_instructions,
+    const assistant = await openai.assistants.create({
+      name: "Codebase Question Assistant",
+      instructions:
+        "This assistant is specialized in addressing broader questions about the codebase. It provides context about multiple files and their interactions, helping to understand overall architecture, design patterns, and codebase-level inquiries.",
       model: model,
       tools: [
         {
@@ -56,6 +52,29 @@ async function createCodebaseQuestionAssistant({
                 },
               },
               required: ["file_path"],
+            },
+          },
+        },
+        {
+          type: "function",
+          function: {
+            name: "contextual_analysis",
+            description:
+              "Provide context about multiple files and their interactions within the codebase",
+            parameters: {
+              type: "object",
+              properties: {
+                files: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                    description: "File paths to be analyzed",
+                  },
+                  description:
+                    "List of files to analyze for interaction context",
+                },
+              },
+              required: ["files"],
             },
           },
         },

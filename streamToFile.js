@@ -1,18 +1,20 @@
 const { handleAssistantStream } = require("./streamHelper");
-const { editFileHandler } = require("./editFile/editFileHandler");
+const { editFileHandler } = require("./tools/editFile/editFileHandler");
 const {
-  editContextHandler,
-} = require("./editContextFile/editContextFileHandler");
+  editContextFileHandler,
+} = require("./tools/editContextFile/editContextFileHandler");
 const {
   askCodebaseQuestionHandler,
-} = require("./askCodebaseQuestion/askCodebaseQuestionHandler");
+} = require("./tools/askCodebaseQuestion/askCodebaseQuestionHandler");
 const {
   askFileQuestionHandler,
-} = require("./askFileQuestion/askFileQuestionHandler");
+} = require("./tools/askFileQuestion/askFileQuestionHandler");
+const { createFileHandler } = require("./tools/createFile/createFileHandler");
 
 const toolFunctions = {
   editFile: editFileHandler,
-  editContextFile: editContextHandler,
+  createFile: createFileHandler,
+  editContextFile: editContextFileHandler,
   askCodebaseQuestion: askCodebaseQuestionHandler,
   askFileQuestion: askFileQuestionHandler,
 };
