@@ -1,0 +1,16 @@
+{
+  "name": "openai-assistant-creator",
+  "version": "1.0.0",
+  "description": "Script to create an OpenAI assistant with tool inputs",
+  "main": "create_assistant.js",
+  "scripts": {
+    "start": "node create_assistant.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "openai": "^4.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11"
+  }
+}
