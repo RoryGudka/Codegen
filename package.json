@@ -2,9 +2,12 @@
   "name": "openai-assistant-creator",
   "version": "1.0.0",
   "description": "Script to create an OpenAI assistant with tool inputs",
-  "main": "create_assistant.js",
+  "main": "dist/init.js",
   "scripts": {
-    "start": "node init.js"
+    "start": "node dist/init.js",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "dotenv": "^16.4.1",
@@ -12,6 +15,11 @@
     "openai": "^4.28.0"
   },
   "devDependencies": {
-    "@types/node": "^22.13.11"
+    "@types/node": "^20.11.24",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
