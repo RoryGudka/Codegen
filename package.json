@@ -1,12 +1,15 @@
 {
-  "name": "openai-assistant-creator",
+  "name": "@rorygudka/codegen",
   "version": "1.0.0",
   "description": "Script to create an OpenAI assistant with tool inputs",
-  "main": "create_assistant.ts",
+  "main": "dist/init.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "start": "npm run build && node dist/init.js",
+    "start": "npm run build && node bin/cli.js",
     "lint": "eslint . --ext .ts"
+  },
+  "bin": {
+    "codegen": "./bin/cli.js"
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",
@@ -16,10 +19,21 @@
     "openai": "^4.28.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.16",
     "@types/eslint": "^9.6.1",
-    "eslint": "^8.57.1",
+    "@types/node": "^20.11.16",
+    "eslint": "^9.23.0",
     "rimraf": "^5.0.10",
     "typescript": "^5.3.3"
-  }
+  },
+  "author": "Rory Gudka <rdgudka@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RoryGudka/Codegen.git"
+  },
+  "keywords": [
+    "openai",
+    "assistant",
+    "codebase management"
+  ]
 }

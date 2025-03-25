@@ -27,7 +27,7 @@ const renameFileHandler = async ({
 
     fs.renameSync(fullFilePath, newFilePath);
     return "File renamed successfully.";
-  } catch (error) {
+  } catch (error: any) {
     return `Failed to rename file: ${error.message}`;
   }
 };

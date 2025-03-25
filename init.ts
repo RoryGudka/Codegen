@@ -2,36 +2,32 @@ import { createAssistant } from "./assistant/createAssistant";
 import { handlePrimaryAssistantStream } from "./helpers/handlePrimaryAssistantStream";
 import { openai } from "./clients/openai";
 
-async function main(): Promise<void> {
+async function main(userInput: string): Promise<void> {
   try {
-    // Create a new assistant
+    // Log the user input to verify CLI string argument is passed
+    console.log("User input:", userInput);
+
+    // Proceed with the rest of the current logic
     const assistant = await createAssistant();
     if (!assistant) {
       throw new Error("Failed to create assistant");
     }
 
-    // Create a thread
     const thread = await openai.beta.threads.create();
-
-    // Add a message to the thread
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content:
-        "Add a helper to get all lint errors in the codebase. Then add it to createAssistant to inform the assistant of the current lint errors at the beginning of the conversation.",
+      content: userInput, // Use the input as the first message content
     });
 
     // Max continue prompts is 5 to prevent infinite looping in worst case
     for (let i = 0; i < 5; i++) {
-      // Run the assistant
       const stream = await openai.beta.threads.runs.create(thread.id, {
         assistant_id: assistant.id,
         stream: true,
       });
 
-      // Wait for completion and stream the response
       await handlePrimaryAssistantStream(stream, assistant.id);
 
-      // Prompt the assistant to continue or end
       await openai.beta.threads.messages.create(thread.id, {
         role: "user",
         content:
@@ -44,4 +40,5 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(console.error);
+const userInput = process.argv.slice(2).join(" ");
+main(userInput).catch(console.error);

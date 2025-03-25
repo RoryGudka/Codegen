@@ -25,7 +25,7 @@ const moveFileHandler = async ({
 
     fs.renameSync(fullSourcePath, fullDestinationPath);
     return "File moved successfully";
-  } catch (error) {
+  } catch (error: any) {
     return `Failed to move file: ${error.message}`;
   }
 };

@@ -9,7 +9,7 @@ import { toolHandlers } from "../assistant/toolHandlers";
  * @returns {Promise<any>} - Result of the tool execution
  */
 async function handleToolCall(toolCall: RequiredActionFunctionToolCall) {
-  const { function: func, id } = toolCall;
+  const { function: func } = toolCall;
   const toolHandler = toolHandlers[func.name as keyof typeof toolHandlers];
 
   if (!toolHandler) {

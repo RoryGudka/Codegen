@@ -63,12 +63,12 @@ function searchFilesForKeyword(
               foundFiles.push(itemPath);
             }
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error(`Error reading file ${itemPath}: ${error.message}`);
         }
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error processing directory ${dirPath}: ${error.message}`);
   }
 
