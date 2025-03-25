@@ -17,11 +17,14 @@ export async function createAssistant(): Promise<Assistant> {
       model: "gpt-4o",
       tools,
     });
+
     console.log("Assistant created successfully!");
     console.log("Assistant ID:", assistant.id);
     console.log("Assistant Name:", assistant.name);
     console.log("Available Tools:", assistant.tools.length);
     console.log("Output:", `outputs/output-${assistant.id}.txt`);
+    console.log(`Output: http://localhost:5000/${assistant.id}`);
+
     return assistant;
   } catch (error) {
     console.error("Error creating assistant:", error);

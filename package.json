@@ -6,6 +6,7 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "start": "npm run build && node bin/cli.js",
+    "view": "npm run build && node dist/view.js",
     "lint": "eslint . --ext .ts"
   },
   "bin": {

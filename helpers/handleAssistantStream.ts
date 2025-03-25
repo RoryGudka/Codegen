@@ -1,5 +1,4 @@
 import { AssistantStreamEvent } from "openai/resources/beta/assistants";
-import OpenAI from "openai";
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/index";
 import fs from "fs";
 import { openai } from "../clients/openai";

@@ -1,10 +1,11 @@
 import { Linter } from "eslint";
 
 const config: Linter.FlatConfig = {
-  files: ["**/*.{js,ts}"],
+  files: ["**/*.{js,ts,jsx,tsx}"], // Include JSX and TSX files for linting
   languageOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
+    ecmaFeatures: { jsx: true }, // Enable JSX parsing
     globals: {
       window: "readonly",
       document: "readonly",
