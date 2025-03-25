@@ -44,6 +44,12 @@ type searchTheWeb = (_: {
 query: string,
 }) => any;
 
+// Executes a terminal command and returns the output or error.
+type exec = (_: {
+// The terminal command to execute
+command: string,
+}) => any;
+
 } // namespace functions
 
 ## multi_tool_use
@@ -73,4 +79,104 @@ parameters: object,
 - Handler location: `tools/deleteFile/deleteFileHandler.js`
 - Tool implementation location: `tools/searchTheWeb/searchTheWebTool.js`
 - Handler location: `tools/searchTheWeb/searchTheWebHandler.js`
-- Image input capabilities: Enabled
+- Tool implementation location: `tools/exec/execTool.js`
+- Handler location: `tools/exec/execHandler.js`
+
+Image input capabilities: Enabled
+
+# Tools
+
+## functions
+
+namespace functions {
+
+// Reads the contents of a file. Returns an error message if the file does not exist.
+type readFile = (_: {
+// The path of the file to read
+filePath: string,
+}) => any;
+
+// Edits a file with the given instructions and context files. Returns an error message if the file does not exist.
+type editFile = (_: {
+// The path to the file to edit
+editFilePath: string,
+// The new file content
+content: string,
+}) => any;
+
+// Creates a new file with the given content. Returns an error message if the file already exists.
+type createFile = (_: {
+// The path where the new file should be created
+newFilePath: string,
+// The new file content
+content: string,
+}) => any;
+
+// Deletes a file at the given path. Returns an error message if the file does not exist.
+type deleteFile = (_: {
+// The path to the file to delete
+deleteFilePath: string,
+}) => any;
+
+// Moves a file from a source path to a destination path. Returns an error message if the source file does not exist. Creates destination directories if they do not exist.
+type moveFile = (_: {
+// The source path of the file
+sourcePath: string,
+// The destination path for the file
+destinationPath: string,
+}) => any;
+
+// Renames a file within the same directory. Returns an error message if the file does not exist. Returns an error message if newFileName includes path information.
+type renameFile = (_: {
+// The current path of the file
+filePath: string,
+// The new file name
+newFileName: string,
+}) => any;
+
+// Modifies the codebase context file to save information between requests.
+type editContextFile = (_: {
+// The new content of the context file
+content: string,
+}) => any;
+
+// Searches file paths and contents for instances of a given keyword.
+type searchFilesForKeyword = (_: {
+// The keyword to search for
+keyword: string,
+}) => any;
+
+// Performs a web search with a given query.
+type searchTheWeb = (_: {
+// The search query
+query: string,
+}) => any;
+
+// Executes a terminal command and returns the output or error.
+type exec = (_: {
+// The terminal command to execute
+command: string,
+}) => any;
+
+} // namespace functions
+
+## multi_tool_use
+
+// This tool serves as a wrapper for utilizing multiple tools. Each tool that can be used must be specified in the tool sections. Only tools in the functions namespace are permitted.
+// Ensure that the parameters provided to each tool are valid according to that tool's specification.
+namespace multi_tool_use {
+
+// Use this function to run multiple tools simultaneously, but only if they can operate in parallel. Do this even if the prompt suggests using the tools sequentially.
+type parallel = (_: {
+// The tools to be executed in parallel. NOTE: only functions tools are permitted
+tool_uses: {
+// The name of the tool to use. The format should either be just the name of the tool, or in the format namespace.function_name for plugin and function tools.
+recipient_name: string,
+// The parameters to pass to the tool. Ensure these are valid according to the tool's own specifications.
+parameters: object,
+}[],
+}) => any;
+
+} // namespace multi_tool_use
+
+You are trained on data up to October 2023.

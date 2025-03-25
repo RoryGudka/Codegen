@@ -1,12 +1,8 @@
-require("dotenv").config();
-const OpenAI = require("openai");
-const { streamToFile } = require("./streamToFile");
-const { createAssistant } = require("./_primaryAssistant/createAssistant");
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const {
+  handlePrimaryAssistantStream,
+} = require("./helpers/handlePrimaryAssistantStream");
+const { createAssistant } = require("./assistant/createAssistant");
+const { openai } = require("./clients/openai");
 
 async function main() {
   try {
@@ -19,8 +15,7 @@ async function main() {
     // Add a message to the thread
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content:
-        "Create a renameFile tool that changes a changes a file name without allowing directory changes. Base the files on the moveFile tool code.",
+      content: "Add an exec tool that will execute terminal code",
     });
 
     // Run the assistant
@@ -30,7 +25,7 @@ async function main() {
     });
 
     // Wait for completion and stream the response
-    await streamToFile(stream, assistant.id);
+    await handlePrimaryAssistantStream(stream, assistant.id);
 
     // Clean up - delete the assistant
     await openai.beta.assistants.del(assistant.id);

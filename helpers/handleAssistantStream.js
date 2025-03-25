@@ -1,13 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const OpenAI = require("openai");
-
-require("dotenv").config();
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const { openai } = require("../clients/openai");
 
 /**
  * Streams an assistant's response to a file in the outputs directory
@@ -104,7 +97,4 @@ async function handleAssistantStream(stream, id, handleToolCall = null) {
   return str;
 }
 
-module.exports = {
-  handleAssistantStream,
-  openai,
-};
+module.exports = { handleAssistantStream };
