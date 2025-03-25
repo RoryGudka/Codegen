@@ -1,5 +1,5 @@
 const { handleAssistantStream } = require("./handleAssistantStream");
-const { toolFunctions } = require("../assistant/toolFunctions");
+const { toolHandlers } = require("../assistant/toolHandlers");
 
 /**
  * Handles a tool call from the assistant stream
@@ -8,15 +8,15 @@ const { toolFunctions } = require("../assistant/toolFunctions");
  */
 async function handleToolCall(toolCall) {
   const { function: func, id } = toolCall;
-  const toolFunction = toolFunctions[func.name];
+  const toolHandler = toolHandlers[func.name];
 
-  if (!toolFunction) {
+  if (!toolHandler) {
     throw new Error(`Tool function ${func.name} not found`);
   }
 
   try {
     const args = JSON.parse(func.arguments);
-    return await toolFunction(args);
+    return await toolHandler(args);
   } catch (error) {
     console.error(`Error executing tool ${func.name}:`, error);
     throw error;

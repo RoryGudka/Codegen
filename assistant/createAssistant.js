@@ -1,6 +1,6 @@
-const { getFileStructure } = require("../getFileStructure");
+const { getFileStructure } = require("../helpers/getFileStructure");
 const { openai } = require("../clients/openai");
-const { getContextFile } = require("../getContextFile");
+const { getContextFile } = require("../helpers/getContextFile");
 const { tools } = require("./tools");
 
 // Function to create an assistant

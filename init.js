@@ -15,7 +15,8 @@ async function main() {
     // Add a message to the thread
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content: "Add an exec tool that will execute terminal code",
+      content:
+        "Convert this project to typescript. Verify by running build successfully and seeing no remaining .js files.",
     });
 
     // Run the assistant
