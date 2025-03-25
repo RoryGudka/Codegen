@@ -16,7 +16,7 @@ async function main() {
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
       content:
-        "Add a endTask tool that accepts a isSuccess parameter and enacts process.exit(0) or process.exit(1) accordingly. Then Modify init.js to prompt the assistant to either continue with completing the request or use the endTask tool whenever it returns.",
+        "Run eslint, read the warning it's outputting, and try to fix it",
     });
 
     // Max continue prompts is 5 to prevent infinite looping in worst case
@@ -34,7 +34,7 @@ async function main() {
       await openai.beta.threads.messages.create(thread.id, {
         role: "user",
         content:
-          "Continue the task. If all changes are made and validated, use the endTask tool to exit.",
+          "Continue the task. If all changes are made and validated, you must use the endTask tool to exit.",
       });
     }
   } catch (error) {

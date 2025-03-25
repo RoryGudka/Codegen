@@ -4,7 +4,8 @@
   "description": "Script to create an OpenAI assistant with tool inputs",
   "main": "create_assistant.js",
   "scripts": {
-    "start": "node init.js"
+    "start": "node init.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",
@@ -14,6 +15,7 @@
     "openai": "^4.28.0"
   },
   "devDependencies": {
-    "@types/node": "^22.13.11"
+    "@types/node": "^22.13.11",
+    "eslint": "^9.23.0"
   }
 }

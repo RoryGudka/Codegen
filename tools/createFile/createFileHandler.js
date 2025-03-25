@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { runEslintOnFile } = require("../../helpers/runEslint");
 
 const createFileHandler = async ({ newFilePath, content }) => {
   const fullNewFilePath = path.join(process.cwd(), newFilePath);
@@ -17,7 +18,10 @@ const createFileHandler = async ({ newFilePath, content }) => {
 
   fs.writeFileSync(fullNewFilePath, content);
 
-  return "File created successfully";
+  // Run ESLint on the newly created file
+  const lintingResult = await runEslintOnFile(fullNewFilePath);
+
+  return `File created successfully.\nLinting result:\n${lintingResult}`;
 };
 
 module.exports = {

@@ -1,4 +1,4 @@
-const execTool = {
+const endTaskTool = {
   type: "function",
   function: {
     name: "endTask",
@@ -18,4 +18,4 @@ const execTool = {
   },
 };
 
-module.exports = { execTool };
+module.exports = { endTaskTool };
