@@ -2,3 +2,4 @@
 .codegen
 node_modules
 outputs
+dist

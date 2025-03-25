@@ -2,10 +2,11 @@
   "name": "openai-assistant-creator",
   "version": "1.0.0",
   "description": "Script to create an OpenAI assistant with tool inputs",
-  "main": "create_assistant.js",
+  "main": "create_assistant.ts",
   "scripts": {
-    "start": "node init.js",
-    "lint": "eslint ."
+    "build": "rimraf dist && tsc",
+    "start": "npm run build && node dist/init.js",
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",
@@ -15,7 +16,9 @@
     "openai": "^4.28.0"
   },
   "devDependencies": {
-    "@types/node": "^22.13.11",
-    "eslint": "^9.23.0"
+    "@types/node": "^20.11.16",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "rimraf": "^5.0.5"
   }
 }

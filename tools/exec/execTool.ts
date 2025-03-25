@@ -1,0 +1,21 @@
+import { ChatCompletionTool } from "openai/resources/chat";
+
+const execTool: ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "exec",
+    description: "Executes a terminal command and returns the output or error.",
+    parameters: {
+      type: "object",
+      properties: {
+        command: {
+          type: "string",
+          description: "The terminal command to execute",
+        },
+      },
+      required: ["command"],
+    },
+  },
+};
+
+export { execTool };
