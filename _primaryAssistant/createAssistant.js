@@ -14,23 +14,33 @@ const { getFileStructure } = require("../getFileStructure");
 const { createFileTool } = require("../tools/createFile/createFileTool");
 const { openai } = require("../clients/openai");
 const { getContextFile } = require("../getContextFile");
+const {
+  searchFilesForKeywordTool,
+} = require("../tools/searchFilesForKeyword/searchCodeFilesTool");
+const { readFileTool } = require("../tools/readFile/readFileTool");
+const { searchTheWebTool } = require("../tools/searchTheWeb/searchTheWebTool");
+const { moveFileTool } = require("../tools/moveFile/moveFileTool");
+const { deleteFileTool } = require("../tools/deleteFile/deleteFileTool");
 
 // Function to create an assistant
 async function createAssistant() {
   const fileStructure = getFileStructure();
   const contextFile = getContextFile();
-  console.log(fileStructure);
 
   try {
     const assistant = await openai.beta.assistants.create({
       name: "Meta-Assistant Manager",
-      instructions: `You are a high-level assistant specially designed to manage larger codebases. Your primary directive is to modify the codebase as instructed by the user. Before making any modifications, however, you should ensure that you fully understand the step-by-step process of how to solve the problems. To do this, you can use tool calls to ask questions about the codebase or specific files and retrieve context you have stored about the codebase from previous tasks. When doing this, try to focus on broad questions that will help you understand the codebase as a whole, and then narrow in on specific questions that will help you accomplish the task at hand if necessary. Once you do this, you should work incrementally to adjust any and all files necessary to satisfy the user's request. Make sure to reason between each request to ensure that the process is going smoothly, and feel free to reevaluate mid-request if necessary. Once the uesr gives you their request, they will NOT be able to respond again, so you should finish the task instead of asking for clarification. Here is the file structure of the codebase:\n\n${fileStructure}\n\nHere is the context file:\n\n${contextFile}`,
+      instructions: `You are a high-level assistant specially designed to manage larger codebases. Your primary directive is to modify the codebase as instructed by the user. Before making any modifications, you should read any files necessary to gain context for solving the problem, and you should create a step-by-step plan to implement the solutions. You must then work incrementally using modification tool calls to adjust any and all files necessary to satisfy the user's request. Make sure to reason between each step to ensure that the process is going smoothly, and feel free to reevaluate mid-request if necessary. Once the user gives you their request, they will NOT be able to respond again, so you should finish the task instead of asking for clarification. If there is similar file structure patterns or instances of code you can emulate, find and utilize them where possible. Here is the file structure of the codebase:\n\n${fileStructure}\n\nHere is the context file:\n\n${contextFile}`,
       model: "gpt-4o",
       tools: [
+        readFileTool,
         editFileTool,
         createFileTool,
-        askFileQuestionTool,
+        deleteFileTool,
+        moveFileTool,
         editContextFileTool,
+        searchFilesForKeywordTool,
+        searchTheWebTool,
       ],
     });
 

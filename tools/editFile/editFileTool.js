@@ -3,28 +3,20 @@ const editFileTool = {
   function: {
     name: "editFile",
     description:
-      "Edits a file with the given instructions and context files. Throws an error if the file doesn't exist.",
+      "Edits a file with the given instructions and context files. Returns an error message if the file does not exist.",
     parameters: {
       type: "object",
       properties: {
-        contextFilePaths: {
-          type: "array",
-          items: {
-            type: "string",
-            description: "An input file path",
-          },
-          description: "The paths to the files that should be used as context",
-        },
         editFilePath: {
           type: "string",
           description: "The path to the file to edit",
         },
-        instructions: {
+        content: {
           type: "string",
-          description: "How this file should be edited",
+          description: "The new file content",
         },
       },
-      required: ["editFilePath", "instructions"],
+      required: ["editFilePath", "content"],
     },
   },
 };

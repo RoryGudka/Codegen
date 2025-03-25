@@ -3,29 +3,20 @@ const createFileTool = {
   function: {
     name: "createFile",
     description:
-      "Creates a new file with the given content. Throws an error if the file already exists.",
+      "Creates a new file with the given content. Returns an error message if the file already exists.",
     parameters: {
       type: "object",
       properties: {
-        contextFilePaths: {
-          type: "array",
-          items: {
-            type: "string",
-            description: "An input file path",
-          },
-          description: "The paths to the files that should be used as context",
-        },
         newFilePath: {
           type: "string",
           description: "The path where the new file should be created",
         },
-        instructions: {
+        content: {
           type: "string",
-          description:
-            "Instructions for what content should be in the new file",
+          description: "The new file content",
         },
       },
-      required: ["newFilePath", "instructions"],
+      required: ["newFilePath", "content"],
     },
   },
 };

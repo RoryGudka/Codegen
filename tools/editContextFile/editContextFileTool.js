@@ -3,16 +3,16 @@ const editContextFileTool = {
   function: {
     name: "editContextFile",
     description:
-      "Modifies the codebase context file to save information between requests",
+      "Modifies the codebase context file to save information between requests.",
     parameters: {
       type: "object",
       properties: {
-        update: {
+        content: {
           type: "string",
-          description: "Update request for the context file",
+          description: "The new content of the context file",
         },
       },
-      required: ["update"],
+      required: ["content"],
     },
   },
 };

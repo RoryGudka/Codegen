@@ -19,8 +19,7 @@ async function main() {
     // Add a message to the thread
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content:
-        "Initialize the context file for the codebase with any information you think is important enough to justify",
+      content: "Get the most recent documentation for react query",
     });
 
     // Run the assistant

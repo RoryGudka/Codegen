@@ -7,6 +7,8 @@
     "start": "node init.js"
   },
   "dependencies": {
+    "@tavily/core": "^0.3.3",
+    "axios": "^1.8.4",
     "dotenv": "^16.4.1",
     "ignore": "^7.0.3",
     "openai": "^4.28.0"

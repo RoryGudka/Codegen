@@ -10,13 +10,25 @@ const {
   askFileQuestionHandler,
 } = require("./tools/askFileQuestion/askFileQuestionHandler");
 const { createFileHandler } = require("./tools/createFile/createFileHandler");
+const {
+  searchFilesForKeywordHandler,
+} = require("./tools/searchFilesForKeyword/searchFilesForKeywordHandler");
+const { readFileHandler } = require("./tools/readFile/readFileHandler");
+const { moveFileHandler } = require("./tools/moveFile/moveFileHandler");
+const { deleteFileHandler } = require("./tools/deleteFile/deleteFileHandler");
+const {
+  searchTheWebHandler,
+} = require("./tools/searchTheWeb/searchTheWebHandler");
 
 const toolFunctions = {
+  readFile: readFileHandler,
   editFile: editFileHandler,
   createFile: createFileHandler,
+  deleteFile: deleteFileHandler,
+  moveFile: moveFileHandler,
   editContextFile: editContextFileHandler,
-  askCodebaseQuestion: askCodebaseQuestionHandler,
-  askFileQuestion: askFileQuestionHandler,
+  searchFilesForKeyword: searchFilesForKeywordHandler,
+  searchTheWeb: searchTheWebHandler,
 };
 
 /**

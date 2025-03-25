@@ -10,13 +10,7 @@ const readFileHandler = async ({ filePath }) => {
     return "File path does not exist. Try again with corrected file path.";
   }
 
-  try {
-    const fileContent = fs.readFileSync(fullFilePath, "utf8");
-    return fileContent;
-  } catch (error) {
-    console.error("Error reading file:", error);
-    throw error;
-  }
+  return fs.readFileSync(fullFilePath, "utf8");
 };
 
 module.exports = {

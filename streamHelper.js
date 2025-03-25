@@ -80,7 +80,7 @@ async function handleAssistantStream(stream, id, handleToolCall = null) {
               tool_call_id: id,
               output:
                 typeof response === "object"
-                  ? JSON.stringify(response)
+                  ? JSON.stringify(response, null, 2)
                   : response.toString(),
             })),
             stream: true,
