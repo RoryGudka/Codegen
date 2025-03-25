@@ -15,26 +15,18 @@ const moveFileHandler = async ({
   const fullDestinationPath = path.join(process.cwd(), destinationPath);
 
   if (!fs.existsSync(fullSourcePath)) {
-    return "Source file does not exist. Cannot move non-existent file.";
+    return "Source file path does not exist. Cannot move file.";
   }
 
   try {
-    const destDir = path.dirname(fullDestinationPath);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
+    // Create the destination directory recursively if it doesn't exist
+    const destinationDir = path.dirname(fullDestinationPath);
+    fs.mkdirSync(destinationDir, { recursive: true });
 
     fs.renameSync(fullSourcePath, fullDestinationPath);
-
-    // Run ESLint on the moved file if it's a JavaScript/TypeScript file
-    if (fullDestinationPath.match(/\.(js|ts)x?$/)) {
-      const lintingResult = await runEslintOnFile(fullDestinationPath);
-      return `File moved successfully.\nLinting result:\n${lintingResult}`;
-    }
-
-    return "File moved successfully.";
+    return "File moved successfully";
   } catch (error) {
-    return `Failed to move file: ${(error as Error).message}`;
+    return `Failed to move file: ${error.message}`;
   }
 };
 

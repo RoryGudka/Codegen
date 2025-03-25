@@ -7,13 +7,11 @@ export function getContextFile(): string {
   try {
     const data = fs.readFileSync(filePath, "utf8");
     return data;
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
       return "Context has not been initialized for this codebase yet.";
     } else {
-      return `Error: An error occurred while reading the file: ${
-        (error as Error).message
-      }`;
+      return `Error: An error occurred while reading the file: ${error.message}`;
     }
   }
 }

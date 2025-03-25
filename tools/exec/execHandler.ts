@@ -1,27 +1,17 @@
-import { exec as execCallback } from "child_process";
-import { promisify } from "util";
+import { exec } from "child_process";
 
 interface ExecParams {
   command: string;
 }
 
-interface ExecResult {
-  stdout: string;
-  stderr: string;
-}
-
-const exec = promisify(execCallback);
-
 const execHandler = async ({ command }: ExecParams): Promise<string> => {
-  try {
-    const { stdout, stderr }: ExecResult = await exec(command);
-    if (stderr) {
-      return `ERROR: ${stderr}`;
-    }
-    return stdout;
-  } catch (error) {
-    return `ERROR: ${(error as Error).message}`;
-  }
+  return new Promise((resolve) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) resolve(`ERROR: ${error.message}`);
+      else if (stderr) resolve(`ERROR: ${stderr}`);
+      else return resolve(stdout);
+    });
+  });
 };
 
 export { execHandler };

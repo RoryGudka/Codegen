@@ -1,4 +1,4 @@
-const { tvly } = require("../../clients/tavily");
+import { tvly } from "../../clients/tavily";
 
 interface SearchTheWebParams {
   query: string;

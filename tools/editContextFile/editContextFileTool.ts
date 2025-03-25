@@ -1,4 +1,4 @@
-import { ChatCompletionTool } from "openai/resources/chat";
+import { ChatCompletionTool } from "openai/resources/chat/index";
 
 const editContextFileTool: ChatCompletionTool = {
   type: "function",

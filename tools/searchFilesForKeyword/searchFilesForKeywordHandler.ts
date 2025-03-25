@@ -2,78 +2,83 @@ import fs from "fs";
 import ignore from "ignore";
 import path from "path";
 
-interface SearchResult {
-  file: string;
-  matches: number;
-  lines: string[];
-}
-
 interface SearchKeywordParams {
   keyword: string;
 }
 
-export function searchFilesForKeyword(
+function searchFilesForKeyword(
   searchString: string,
   dirPath: string = "."
-): SearchResult[] {
-  let foundFiles: SearchResult[] = [];
+): string[] {
+  let foundFiles: string[] = [];
 
   try {
     // Load .gitignore patterns
     const gitignorePath = path.join(dirPath, ".gitignore");
     let ig = ignore();
     if (fs.existsSync(gitignorePath)) {
-      const gitignoreContent = fs.readFileSync(gitignorePath, "utf8");
+      const gitignoreContent = fs.readFileSync(gitignorePath).toString();
       ig = ig.add(gitignoreContent);
     }
 
-    const files = fs.readdirSync(dirPath);
+    // Read the contents of the directory
+    const items = fs.readdirSync(dirPath);
 
-    for (const file of files) {
-      if (file.startsWith(".") || file === "node_modules") continue;
+    // Sort items to list directories first, then files
+    const sortedItems = items.sort((a, b) => {
+      const aPath = path.join(dirPath, a);
+      const bPath = path.join(dirPath, b);
+      const aIsDir = fs.statSync(aPath).isDirectory();
+      const bIsDir = fs.statSync(bPath).isDirectory();
 
-      const filePath = path.join(dirPath, file);
-      const stats = fs.statSync(filePath);
+      if (aIsDir && !bIsDir) return -1;
+      if (!aIsDir && bIsDir) return 1;
+      return a.localeCompare(b);
+    });
 
-      // Skip files and directories that are ignored by .gitignore
-      const relativePath = path.relative(dirPath, filePath);
-      if (ig.ignores(relativePath)) continue;
+    for (const item of sortedItems) {
+      if (item === ".git") {
+        continue;
+      }
+
+      const itemPath = path.join(dirPath, item);
+      const stats = fs.statSync(itemPath);
+
+      const relativePath = path.relative(dirPath, itemPath);
+      if (ig.ignores(relativePath)) {
+        continue;
+      }
 
       if (stats.isDirectory()) {
         foundFiles = foundFiles.concat(
-          searchFilesForKeyword(searchString, filePath)
+          searchFilesForKeyword(searchString, itemPath)
         );
       } else {
-        const content = fs.readFileSync(filePath, "utf8");
-        const lines = content.split("\n");
-        const matchingLines = lines.filter((line) =>
-          line.toLowerCase().includes(searchString.toLowerCase())
-        );
-
-        if (matchingLines.length > 0) {
-          foundFiles.push({
-            file: filePath,
-            matches: matchingLines.length,
-            lines: matchingLines,
-          });
+        try {
+          if (itemPath.includes(searchString)) {
+            foundFiles.push(itemPath);
+          } else {
+            const fileContent = fs.readFileSync(itemPath, "utf8");
+            if (fileContent.includes(searchString)) {
+              foundFiles.push(itemPath);
+            }
+          }
+        } catch (error) {
+          console.error(`Error reading file ${itemPath}: ${error.message}`);
         }
       }
     }
   } catch (error) {
-    console.error(
-      `Error processing directory ${dirPath}: ${(error as Error).message}`
-    );
+    console.error(`Error processing directory ${dirPath}: ${error.message}`);
   }
 
   return foundFiles;
 }
 
-export function searchFilesForKeywordHandler({
+function searchFilesForKeywordHandler({
   keyword,
-}: SearchKeywordParams): SearchResult[] {
-  return searchFilesForKeyword(keyword, ".");
+}: SearchKeywordParams): string {
+  return searchFilesForKeyword(keyword, ".").join("\n");
 }
 
-module.exports = {
-  searchFilesForKeywordHandler,
-};
+export { searchFilesForKeywordHandler };

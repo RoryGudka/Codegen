@@ -1,35 +1,41 @@
-import { AssistantRun } from "../types/openai";
-import { openai } from "../clients/openai";
+import { AssistantStreamEvent } from "openai/resources/beta/assistants";
+import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/index";
+import { handleAssistantStream } from "./handleAssistantStream";
+import { toolHandlers } from "../assistant/toolHandlers";
 
-interface StreamCallbacks {
-  onMessage?: (message: string) => void;
-  onError?: (error: Error) => void;
-  onComplete?: () => void;
-}
+/**
+ * Handles a tool call from the assistant stream
+ * @param {Object} toolCall - The tool call object from the stream
+ * @returns {Promise<any>} - Result of the tool execution
+ */
+async function handleToolCall(toolCall: RequiredActionFunctionToolCall) {
+  const { function: func, id } = toolCall;
+  const toolHandler = toolHandlers[func.name as keyof typeof toolHandlers];
 
-export async function handlePrimaryAssistantStream(
-  run: AssistantRun,
-  assistantId: string,
-  callbacks: StreamCallbacks
-): Promise<void> {
+  if (!toolHandler) {
+    throw new Error(`Tool function ${func.name} not found`);
+  }
+
   try {
-    const messages = await openai.beta.threads.messages.list(run.thread_id);
-
-    for (const message of messages.data) {
-      if (message.role === "assistant" && message.content) {
-        const content = message.content[0];
-        if ("text" in content) {
-          callbacks.onMessage?.(content.text.value);
-        }
-      }
-    }
-
-    callbacks.onComplete?.();
+    const args = JSON.parse(func.arguments);
+    return await toolHandler(args);
   } catch (error) {
-    if (error instanceof Error) {
-      callbacks.onError?.(error);
-    } else {
-      callbacks.onError?.(new Error("Unknown error occurred"));
-    }
+    console.error(`Error executing tool ${func.name}:`, error);
+    throw error;
   }
 }
+
+/**
+ * Streams an assistant's response to a file in the outputs directory
+ * @param {AsyncIterable<any>} stream - The assistant's response stream
+ * @param {string} id - Unique identifier for the output file
+ * @returns {Promise<string>} - Total content of stream output
+ */
+async function handlePrimaryAssistantStream(
+  stream: AsyncIterable<AssistantStreamEvent>,
+  id: string
+) {
+  return handleAssistantStream(stream, id, handleToolCall);
+}
+
+export { handlePrimaryAssistantStream };

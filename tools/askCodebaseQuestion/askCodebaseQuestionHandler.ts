@@ -37,7 +37,11 @@ const askCodebaseQuestionHandler = async (
       stream: true,
     });
 
-    const content = await handleAssistantStream(stream, assistant.id);
+    const content = await handleAssistantStream(
+      stream,
+      assistant.id,
+      () => new Promise((resolve) => resolve(""))
+    );
     const outputPath = path.join(__dirname, "output.txt");
     fs.writeFileSync(outputPath, content);
     return assistant;

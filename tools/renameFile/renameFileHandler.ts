@@ -26,16 +26,9 @@ const renameFileHandler = async ({
     }
 
     fs.renameSync(fullFilePath, newFilePath);
-
-    // Run ESLint on renamed file if it's a JavaScript/TypeScript file
-    if (newFilePath.match(/\.(js|ts)x?$/)) {
-      const lintingResult = await runEslintOnFile(newFilePath);
-      return `File renamed successfully.\nLinting result:\n${lintingResult}`;
-    }
-
     return "File renamed successfully.";
   } catch (error) {
-    return `Failed to rename file: ${(error as Error).message}`;
+    return `Failed to rename file: ${error.message}`;
   }
 };
 

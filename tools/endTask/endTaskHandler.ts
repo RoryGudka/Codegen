@@ -6,9 +6,9 @@ const endTaskHandler = async ({
   isSuccess,
 }: EndTaskParams): Promise<string> => {
   if (isSuccess) {
-    return "Task completed successfully. Exiting...";
+    process.exit(0);
   } else {
-    return "Task failed to complete. Exiting...";
+    process.exit(1);
   }
 };
 

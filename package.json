@@ -17,8 +17,9 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.16",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "rimraf": "^5.0.5"
+    "@types/eslint": "^9.6.1",
+    "eslint": "^8.57.1",
+    "rimraf": "^5.0.10",
+    "typescript": "^5.3.3"
   }
 }
