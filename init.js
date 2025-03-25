@@ -16,22 +16,27 @@ async function main() {
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
       content:
-        "Convert this project to typescript. Verify by running build successfully and seeing no remaining .js files.",
+        "Add a endTask tool that accepts a isSuccess parameter and enacts process.exit(0) or process.exit(1) accordingly. Then Modify init.js to prompt the assistant to either continue with completing the request or use the endTask tool whenever it returns.",
     });
 
-    // Run the assistant
-    let stream = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistant.id,
-      stream: true,
-    });
+    // Max continue prompts is 5 to prevent infinite looping in worst case
+    for (let i = 0; i < 5; i++) {
+      // Run the assistant
+      let stream = await openai.beta.threads.runs.create(thread.id, {
+        assistant_id: assistant.id,
+        stream: true,
+      });
 
-    // Wait for completion and stream the response
-    await handlePrimaryAssistantStream(stream, assistant.id);
+      // Wait for completion and stream the response
+      await handlePrimaryAssistantStream(stream, assistant.id);
 
-    // Clean up - delete the assistant
-    await openai.beta.assistants.del(assistant.id);
-
-    process.exit(0);
+      // Prompt the assistant to continue or end
+      await openai.beta.threads.messages.create(thread.id, {
+        role: "user",
+        content:
+          "Continue the task. If all changes are made and validated, use the endTask tool to exit.",
+      });
+    }
   } catch (error) {
     console.error("Error:", error);
   }

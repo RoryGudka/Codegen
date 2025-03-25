@@ -14,6 +14,7 @@ const {
   searchTheWebHandler,
 } = require("../tools/searchTheWeb/searchTheWebHandler");
 const { execHandler } = require("../tools/exec/execHandler");
+const { endTaskHandler } = require("../tools/endTask/endTaskHandler");
 
 const toolHandlers = {
   readFile: readFileHandler,
@@ -26,6 +27,7 @@ const toolHandlers = {
   searchFilesForKeyword: searchFilesForKeywordHandler,
   searchTheWeb: searchTheWebHandler,
   exec: execHandler,
+  endTask: endTaskHandler,
 };
 
-module.exports = { toolFunctions };
+module.exports = { toolHandlers };

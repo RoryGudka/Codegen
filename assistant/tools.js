@@ -10,10 +10,9 @@ const { readFileTool } = require("../tools/readFile/readFileTool");
 const { moveFileTool } = require("../tools/moveFile/moveFileTool");
 const { deleteFileTool } = require("../tools/deleteFile/deleteFileTool");
 const { renameFileTool } = require("../tools/renameFile/renameFileTool");
-const {
-  searchTheWebTool,
-} = require("../tools/searchTheWeb/searchTheWebHandler");
+const { searchTheWebTool } = require("../tools/searchTheWeb/searchTheWebTool");
 const { execTool } = require("../tools/exec/execTool");
+const { endTaskTool } = require("../tools/endTask/endTaskTool");
 
 const tools = [
   readFileTool,
@@ -26,6 +25,7 @@ const tools = [
   searchFilesForKeywordTool,
   searchTheWebTool,
   execTool,
+  endTaskTool,
 ];
 
 module.exports = { tools };
