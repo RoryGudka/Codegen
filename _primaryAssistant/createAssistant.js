@@ -16,11 +16,12 @@ const { openai } = require("../clients/openai");
 const { getContextFile } = require("../getContextFile");
 const {
   searchFilesForKeywordTool,
-} = require("../tools/searchFilesForKeyword/searchCodeFilesTool");
+} = require("../tools/searchFilesForKeyword/searchFilesForKeywordTool");
 const { readFileTool } = require("../tools/readFile/readFileTool");
 const { searchTheWebTool } = require("../tools/searchTheWeb/searchTheWebTool");
 const { moveFileTool } = require("../tools/moveFile/moveFileTool");
 const { deleteFileTool } = require("../tools/deleteFile/deleteFileTool");
+const { renameFileTool } = require("../tools/renameFile/renameFileTool");
 
 // Function to create an assistant
 async function createAssistant() {
@@ -38,6 +39,7 @@ async function createAssistant() {
         createFileTool,
         deleteFileTool,
         moveFileTool,
+        renameFileTool,
         editContextFileTool,
         searchFilesForKeywordTool,
         searchTheWebTool,

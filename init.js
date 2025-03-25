@@ -19,7 +19,8 @@ async function main() {
     // Add a message to the thread
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content: "Get the most recent documentation for react query",
+      content:
+        "Create a renameFile tool that changes a changes a file name without allowing directory changes. Base the files on the moveFile tool code.",
     });
 
     // Run the assistant

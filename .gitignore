@@ -1,3 +1,4 @@
 .env
+.codegen
 node_modules
 outputs

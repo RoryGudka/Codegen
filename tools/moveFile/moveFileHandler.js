@@ -10,6 +10,10 @@ const moveFileHandler = async ({ sourcePath, destinationPath }) => {
   }
 
   try {
+    // Create the destination directory recursively if it doesn't exist
+    const destinationDir = path.dirname(fullDestinationPath);
+    fs.mkdirSync(destinationDir, { recursive: true });
+
     fs.renameSync(fullSourcePath, fullDestinationPath);
     return "File moved successfully";
   } catch (error) {

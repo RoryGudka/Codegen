@@ -16,6 +16,7 @@ const {
 const { readFileHandler } = require("./tools/readFile/readFileHandler");
 const { moveFileHandler } = require("./tools/moveFile/moveFileHandler");
 const { deleteFileHandler } = require("./tools/deleteFile/deleteFileHandler");
+const { renameFileHandler } = require("./tools/renameFile/renameFileHandler");
 const {
   searchTheWebHandler,
 } = require("./tools/searchTheWeb/searchTheWebHandler");
@@ -26,6 +27,7 @@ const toolFunctions = {
   createFile: createFileHandler,
   deleteFile: deleteFileHandler,
   moveFile: moveFileHandler,
+  renameFile: renameFileHandler,
   editContextFile: editContextFileHandler,
   searchFilesForKeyword: searchFilesForKeywordHandler,
   searchTheWeb: searchTheWebHandler,
