@@ -6,9 +6,8 @@ interface ExecParams {
 
 const execHandler = async ({ command }: ExecParams): Promise<string> => {
   return new Promise((resolve) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) resolve(`ERROR: ${error.message}`);
-      else if (stderr) resolve(`ERROR: ${stderr}`);
+    exec(command, (_, stdout, stderr) => {
+      if (stderr) resolve(`ERROR: ${stderr}`);
       else return resolve(stdout);
     });
   });

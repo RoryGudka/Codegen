@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { runEslintOnFile } from "../../helpers/runEslint";
+import { runEslintOnFile } from "../../helpers/runEslintOnFile";
 
 interface EditFileParams {
   editFilePath: string;

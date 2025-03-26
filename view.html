@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Codegen viewer</title>
+    <script>
+      const id = window.location.href.split("/").pop();
+      const socket = new WebSocket(`ws://localhost:5000?id=${id}`);
+
+      socket.onmessage = (event) => {
+        document.getElementById("output").innerText = event.data;
+      };
+    </script>
+  </head>
+  <body>
+    <div id="output"></div>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 import fs from "fs";
+import { getFileStructure } from "./helpers/getFileStructure";
 import { get_encoding } from "tiktoken";
-import ignore from "ignore";
 import { openai } from "./clients/openai";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
@@ -10,38 +10,6 @@ interface EmbeddingMap {
     lastFileEditDate: string;
     embeddingFileIds: string[];
   };
-}
-
-async function getTrackedFiles(dirPath = ".") {
-  const gitignorePath = path.join(dirPath, ".gitignore");
-  let ig = ignore();
-  if (fs.existsSync(gitignorePath)) {
-    const gitignoreContent = fs.readFileSync(gitignorePath).toString();
-    ig = ig.add(gitignoreContent);
-  }
-
-  const isIgnored = (filePath: string) => {
-    const relativePath = path.relative(dirPath, filePath);
-    return ig.ignores(relativePath);
-  };
-
-  function scanDir(currentPath: string) {
-    let files: string[] = [];
-    const items = fs.readdirSync(currentPath);
-    for (const item of items) {
-      if (item !== ".git" && item !== "package-lock.json") {
-        const fullPath = path.join(currentPath, item);
-        if (isIgnored(fullPath)) continue;
-        if (fs.statSync(fullPath).isDirectory()) {
-          files = files.concat(scanDir(fullPath));
-        } else {
-          files.push(fullPath);
-        }
-      }
-    }
-    return files;
-  }
-  return scanDir(dirPath);
 }
 
 async function cleanupEmbeddingMap(trackedFiles: string[]) {
@@ -174,12 +142,12 @@ async function computeEmbeddings(
 }
 
 async function processFiles() {
-  const files = await getTrackedFiles();
+  const files = await getFileStructure().split("\n");
   // Clean up the embedding map before processing files
   await cleanupEmbeddingMap(files);
 
   for (const file of files) {
-    const result = await computeEmbeddings(file);
+    await computeEmbeddings(file);
   }
 }
 

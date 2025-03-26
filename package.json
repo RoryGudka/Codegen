@@ -16,8 +16,12 @@
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",
+    "@types/express": "^5.0.1",
+    "@types/ws": "^8.18.0",
     "axios": "^1.8.4",
     "dotenv": "^16.4.1",
+    "express": "^4.21.2",
+    "fs-extra": "^11.3.0",
     "ignore": "^7.0.3",
     "openai": "^4.28.0",
     "tiktoken": "^1.0.20",
@@ -25,7 +29,10 @@
   },
   "devDependencies": {
     "@types/eslint": "^9.6.1",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.16",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
     "eslint": "^9.23.0",
     "rimraf": "^5.0.10",
     "typescript": "^5.3.3"

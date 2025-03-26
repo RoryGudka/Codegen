@@ -2,11 +2,9 @@ import { exec } from "child_process";
 import { findEslintConfig } from "./getEslintConfig";
 import { resolve } from "path";
 
-/**
- * Runs ESLint to get all lint errors across the codebase.
- */
-export async function getAllLintErrors(): Promise<string> {
-  const configDir = findEslintConfig(resolve("./eslint.config.mjs"));
+export async function runEslintOnFile(filePath: string): Promise<string> {
+  const absoluteFilePath = resolve(filePath);
+  const configDir = findEslintConfig(absoluteFilePath);
   const execOptions = configDir ? { cwd: configDir } : {};
 
   const hasEslintInstalled = await new Promise((res) => {
@@ -18,12 +16,16 @@ export async function getAllLintErrors(): Promise<string> {
   if (!hasEslintInstalled) return "No instance of eslint found.";
 
   return new Promise((res) => {
-    exec(`npx eslint`, execOptions, (_, stdout, stderr) => {
-      if (stderr) {
-        res(`ERROR: ${stderr}`);
-      } else {
-        res(stdout || "No linting issues found.");
+    exec(
+      `npx eslint "${absoluteFilePath}"`,
+      execOptions,
+      (_, stdout, stderr) => {
+        if (stderr) {
+          res(`ERROR: ${stderr}`);
+        } else {
+          res(stdout || "No linting issues found.");
+        }
       }
-    });
+    );
   });
 }

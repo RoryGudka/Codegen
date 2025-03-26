@@ -28,7 +28,7 @@ export type AssistantStatus =
   | "requires_action"
   | "expired";
 
-export interface AssistantRun extends OpenAI.Beta.Threads.Runs.Run {}
+export type AssistantRun = OpenAI.Beta.Threads.Runs.Run;
 
 export interface AssistantToolParameter {
   type: string;
@@ -51,4 +51,4 @@ export interface AssistantTool {
   function: AssistantToolFunction;
 }
 
-export interface Assistant extends OpenAI.Beta.Assistant {}
+export type Assistant = OpenAI.Beta.Assistant;

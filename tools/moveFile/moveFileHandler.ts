@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { runEslintOnFile } from "../../helpers/runEslint";
 
 interface MoveFileParams {
   sourcePath: string;

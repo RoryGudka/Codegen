@@ -1,7 +1,5 @@
-import { FileOperationResult } from "../../types";
 import fs from "fs";
 import path from "path";
-import { runEslintOnFile } from "../../helpers/runEslint";
 
 interface RenameFileParams {
   filePath: string;
