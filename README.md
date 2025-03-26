@@ -1,3 +1,12 @@
+# Disclaimer
+
+This project is currently a work in progress (WIP). Please be aware that not all security best practices have been implemented.
+
+- **Codegen Directory**: Ensure that `.codegen` is included in your `.gitignore` file to prevent exposing sensitive credentials.
+- **Assistant Tool Calls**: The assistant tool calls are not designed to prompt users for approval. Therefore, theoretically, harmful operations could be executed unintentionally.
+
+Use this project at your own risk and always review changes carefully.
+
 # Codegen - NPM Package
 
 ## Overview

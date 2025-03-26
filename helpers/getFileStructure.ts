@@ -44,11 +44,13 @@ function getFileStructure(dirPath = ".") {
       for (const item of items) {
         if (item !== ".git" && item !== "package-lock.json") {
           const fullPath = path.join(currentPath, item);
-          if (isIgnored(fullPath)) continue;
-          if (fs.statSync(fullPath).isDirectory()) {
-            files = files.concat(scanDir(fullPath));
-          } else {
-            files.push(path.relative(process.cwd(), fullPath)); // Convert to relative path
+          if (!fullPath.includes(".codegen")) {
+            if (isIgnored(fullPath)) continue;
+            if (fs.statSync(fullPath).isDirectory()) {
+              files = files.concat(scanDir(fullPath));
+            } else {
+              files.push(path.relative(process.cwd(), fullPath)); // Convert to relative path
+            }
           }
         }
       }
