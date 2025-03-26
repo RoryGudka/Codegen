@@ -5,8 +5,9 @@
   "main": "dist/init.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "start": "npm run build && node bin/cli.js",
+    "gen": "npm run build && node dist/gen.js",
     "view": "npm run build && node dist/view.js",
+    "embeddings": "npm run build && node dist/embeddings.js",
     "lint": "eslint . --ext .ts"
   },
   "bin": {
@@ -17,7 +18,9 @@
     "axios": "^1.8.4",
     "dotenv": "^16.4.1",
     "ignore": "^7.0.3",
-    "openai": "^4.28.0"
+    "openai": "^4.28.0",
+    "tiktoken": "^1.0.20",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/eslint": "^9.6.1",

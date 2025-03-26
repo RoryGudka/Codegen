@@ -1,14 +1,17 @@
 import { createAssistant } from "./assistant/createAssistant";
+import { getMostRelevantFiles } from "./helpers/getEmbeddingSimilarity";
 import { handlePrimaryAssistantStream } from "./helpers/handlePrimaryAssistantStream";
 import { openai } from "./clients/openai";
 
-async function main(userInput: string): Promise<void> {
+async function main(userInput: string, n: number): Promise<void> {
   try {
+    const files = await getMostRelevantFiles(userInput, n);
+
     // Log the user input to verify CLI string argument is passed
     console.log("User input:", userInput);
 
     // Proceed with the rest of the current logic
-    const assistant = await createAssistant();
+    const assistant = await createAssistant(files);
     if (!assistant) {
       throw new Error("Failed to create assistant");
     }
@@ -40,5 +43,6 @@ async function main(userInput: string): Promise<void> {
   }
 }
 
-const userInput = process.argv.slice(2).join(" ");
-main(userInput).catch(console.error);
+const userInput = process.argv[2];
+const n = Number(process.argv[3] || "0");
+main(userInput, n).catch(console.error);
