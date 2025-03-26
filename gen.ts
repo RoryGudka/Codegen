@@ -7,9 +7,6 @@ async function main(userInput: string, n: number): Promise<void> {
   try {
     const files = await getMostRelevantFiles(userInput, n);
 
-    // Log the user input to verify CLI string argument is passed
-    console.log("User input:", userInput);
-
     // Proceed with the rest of the current logic
     const assistant = await createAssistant(files);
     if (!assistant) {

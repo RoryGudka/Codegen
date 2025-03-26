@@ -34,7 +34,6 @@ function getFileStructure(dirPath = ".") {
     // Use the directory containing .gitignore as the base for relative paths
     const baseDir = gitignoreDir || absoluteDirPath;
     const relativePath = path.relative(baseDir, filePath);
-    // Handle empty relative path for the base directory itself
     return relativePath && ig.ignores(relativePath);
   };
 
@@ -49,7 +48,7 @@ function getFileStructure(dirPath = ".") {
           if (fs.statSync(fullPath).isDirectory()) {
             files = files.concat(scanDir(fullPath));
           } else {
-            files.push(fullPath);
+            files.push(path.relative(process.cwd(), fullPath)); // Convert to relative path
           }
         }
       }

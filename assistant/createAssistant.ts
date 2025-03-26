@@ -29,15 +29,13 @@ export async function createAssistant(
       tools,
     });
 
-    console.log("Assistant created successfully!");
-    console.log("Assistant ID:", assistant.id);
-    console.log("Assistant Name:", assistant.name);
-    console.log("Available Tools:", assistant.tools.length);
-    console.log(
-      `Most relevant files:\n${files.map(([path]) => path).join("\n")}`
-    );
-    console.log("Output:", `.codegen/outputs/output-${assistant.id}.txt`);
-    console.log(`Output: http://localhost:5000/${assistant.id}`);
+    console.info("Assistant created successfully!");
+    console.info("Assistant ID:", assistant.id);
+    console.info("Assistant Name:", assistant.name);
+    console.info("Available Tools:", assistant.tools.length);
+    console.info(`Most relevant files:\n${files.map(([p]) => p).join("\n")}`);
+    console.info("Output:", `.codegen/outputs/output-${assistant.id}.txt`);
+    console.info(`Output: http://localhost:5000/${assistant.id}`);
 
     return assistant;
   } catch (error) {

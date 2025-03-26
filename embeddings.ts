@@ -61,15 +61,6 @@ async function computeEmbeddings(
     embeddingMap = JSON.parse(fs.readFileSync(mapPath, "utf-8"));
   }
 
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const split = raw.split("\n");
-  const total = split.length;
-  const mid = ((end || total) - (start || 0)) / 2 + (start || 0);
-  const selected = split.slice(start || 0, end || total).join("\n");
-  const content = addFilePathAndLineNumbers(filePath, selected, start);
-  const encoding = get_encoding("cl100k_base");
-  const tokens = encoding.encode(content).length;
-
   const generateOutputPath = (id: string) =>
     path.join(".codegen", "embeddings", `${id}.json`);
 
@@ -101,6 +92,16 @@ async function computeEmbeddings(
       };
     }
   }
+
+  // Only compute content and tokens if needed
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const split = raw.split("\n");
+  const total = split.length;
+  const mid = ((end || total) - (start || 0)) / 2 + (start || 0);
+  const selected = split.slice(start || 0, end || total).join("\n");
+  const content = addFilePathAndLineNumbers(filePath, selected, start);
+  const encoding = get_encoding("cl100k_base");
+  const tokens = encoding.encode(content).length;
 
   if (tokens > 8191) {
     const first = await computeEmbeddings(filePath, start || 0, mid);

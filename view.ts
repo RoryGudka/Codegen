@@ -17,13 +17,13 @@ app.get("/:id", (req, res) => {
 });
 
 const server = app.listen(PORT, () =>
-  console.log(`Server running at http://localhost:${PORT}`)
+  console.info(`Server running at http://localhost:${PORT}`)
 );
 const wss = new WebSocket.Server({ server });
 
 wss.on("connection", (ws, req) => {
   const id = req.url?.split("?")?.[1]?.split("=")?.[1];
-  console.log("Client connected");
+  console.info("Client connected");
 
   const sendUpdates = () => {
     const filePath = path.join(OUTPUT_DIR, `output-${id}.txt`);

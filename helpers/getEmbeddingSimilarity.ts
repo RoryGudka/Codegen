@@ -37,7 +37,7 @@ async function compareStringToEmbeddings(inputString: string) {
 
   const mapPath = path.join(".codegen", "embeddings", "map.json");
   if (!fs.existsSync(mapPath)) {
-    console.log("No embedding map found at", mapPath);
+    console.warn("No embedding map found at", mapPath);
     return [];
   }
 
@@ -89,10 +89,12 @@ async function getEmbeddingSimilarity(input: string, n: number) {
 }
 
 async function getMostRelevantFiles(input: string, n: number) {
+  console.time("embeddings");
   const filePaths = await getEmbeddingSimilarity(input, n);
   const files = filePaths.map(
     (path) => [path, fs.readFileSync(path, "utf-8")] as [string, string]
   );
+  console.timeEnd("embeddings");
   return files;
 }
 
