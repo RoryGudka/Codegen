@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .ts"
   },
   "bin": {
-    "codegen": "./bin/cli.js"
+    "codegen": "bin/cli.js"
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",
