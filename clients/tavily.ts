@@ -1,5 +1,12 @@
-const { tavily } = require("@tavily/core");
+import { readCredentials } from "../helpers/readCredentials";
+import { tavily } from "@tavily/core";
 
-const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
+const { TAVILY_API_KEY } = readCredentials();
+
+if (!TAVILY_API_KEY) {
+  throw new Error("TAVILY_API_KEY is not set in .codegen/credentials.json");
+}
+
+const tvly = tavily({ apiKey: TAVILY_API_KEY });
 
 export { tvly };

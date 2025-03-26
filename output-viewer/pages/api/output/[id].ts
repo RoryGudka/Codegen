@@ -10,7 +10,11 @@ export default async function handler(
   const { id } = req.query;
 
   try {
-    const filePath = path.join(process.cwd(), "../outputs", `output-${id}.txt`);
+    const filePath = path.join(
+      process.cwd(),
+      "../.codegen/outputs",
+      `output-${id}.txt`
+    );
     const content = await readFile(filePath, "utf-8");
     res.status(200).json({ content });
   } catch (e) {

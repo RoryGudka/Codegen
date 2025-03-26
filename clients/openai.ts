@@ -1,13 +1,12 @@
-import { AssistantError } from "../utils/errorHandling";
 import OpenAI from "openai";
-import dotenv from "dotenv";
+import { readCredentials } from "../helpers/readCredentials";
 
-dotenv.config();
+const { OPENAI_API_KEY } = readCredentials();
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY is not set in environment variables");
+if (!OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY is not set in .codegen/credentials.json");
 }
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: OPENAI_API_KEY,
 });

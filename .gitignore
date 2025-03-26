@@ -1,7 +1,6 @@
 .env
 .codegen
 node_modules
-outputs
 dist
 
 # dependencies

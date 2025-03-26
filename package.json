@@ -8,6 +8,7 @@
     "gen": "npm run build && node dist/gen.js",
     "view": "npm run build && node dist/view.js",
     "embeddings": "npm run build && node dist/embeddings.js",
+    "configure": "npm run build && node dist/configure.js",
     "lint": "eslint . --ext .ts"
   },
   "bin": {

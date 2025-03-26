@@ -17,7 +17,7 @@ async function handleAssistantStream(
   handleToolCall: (toolCall: RequiredActionFunctionToolCall) => Promise<string>
 ) {
   // Create outputs directory if it doesn't exist
-  const outputsDir = path.join(process.cwd(), "outputs");
+  const outputsDir = path.join(process.cwd(), ".codegen/outputs");
   if (!fs.existsSync(outputsDir)) {
     fs.mkdirSync(outputsDir, { recursive: true });
   }

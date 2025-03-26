@@ -5,18 +5,18 @@ const path = require("path");
 
 // Get the operation from the cli command
 const target = process.argv[2];
-if (target !== "gen" && target !== "view" && target !== "embeddings") {
+if (target !== "gen" && target !== "view" && target !== "embeddings" && target !== "configure") {
   process.exit(1);
 }
 
 // Capture arguments passed from the CLI command
 const inputArgs = process.argv.slice(3);
 
-// Construct the path to the dist/gen.js script
-const initScriptPath = path.join(__dirname, "..", "dist", `${target}.js`);
+// Construct the path to the dist script
+const scriptPath = path.join(__dirname, "..", "dist", `${target}.js`);
 
-// Run the init.js script with additional input arguments
-const child = spawn("node", [initScriptPath, ...inputArgs], {
+// Run the script with additional input arguments
+const child = spawn("node", [scriptPath, ...inputArgs], {
   stdio: "inherit",
 });
 
