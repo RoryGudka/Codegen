@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { runEslintOnFile } from "../../helpers/runEslintOnFile";
+import { runPrettierOnFile } from "../../helpers/runPrettierOnFile";
 
 interface CreateFileParams {
   newFilePath: string;
@@ -26,10 +27,13 @@ const createFileHandler = async ({
 
   fs.writeFileSync(fullNewFilePath, content);
 
+  // Run Prettier on the newly created file
+  const formattingResult = await runPrettierOnFile(fullNewFilePath);
+
   // Run ESLint on the newly created file
   const lintingResult = await runEslintOnFile(fullNewFilePath);
 
-  return `File created successfully.\nLinting result:\n${lintingResult}`;
+  return `File created successfully.\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}`;
 };
 
 export { createFileHandler };

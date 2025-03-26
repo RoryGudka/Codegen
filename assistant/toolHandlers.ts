@@ -10,6 +10,7 @@ import { renameFileHandler } from "../tools/renameFile/renameFileHandler";
 import { searchFilesForKeywordHandler } from "../tools/searchFilesForKeyword/searchFilesForKeywordHandler";
 import { searchTheWebHandler } from "../tools/searchTheWeb/searchTheWebHandler";
 import { getFilesSimilarToStringHandler } from "../tools/getFilesSimilarToString/getFilesSimilarToStringHandler";
+import { getMostRelevantFilesHandler } from "../tools/getMostRelevantFiles/getMostRelevantFilesHandler";
 
 const toolHandlers = {
   readFile: readFileHandler,
@@ -24,6 +25,7 @@ const toolHandlers = {
   exec: execHandler,
   endTask: endTaskHandler,
   getFilesSimilarToString: getFilesSimilarToStringHandler,
+  getMostRelevantFiles: getMostRelevantFilesHandler,
 };
 
 export { toolHandlers };

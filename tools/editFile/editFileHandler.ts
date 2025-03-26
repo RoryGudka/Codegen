@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { runEslintOnFile } from "../../helpers/runEslintOnFile";
+import { runPrettierOnFile } from "../../helpers/runPrettierOnFile";
 
 interface EditFileParams {
   editFilePath: string;
@@ -19,10 +20,13 @@ const editFileHandler = async ({
 
   fs.writeFileSync(fullEditFilePath, content);
 
+  // Run Prettier on the edited file
+  const formattingResult = await runPrettierOnFile(fullEditFilePath);
+
   // Run ESLint on the edited file
   const lintingResult = await runEslintOnFile(fullEditFilePath);
 
-  return `File edited successfully.\nLinting result:\n${lintingResult}`;
+  return `File edited successfully.\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}`;
 };
 
 export { editFileHandler };

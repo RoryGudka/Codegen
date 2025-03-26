@@ -1,3 +1,4 @@
+import { computeAllEmbeddings } from "./computeAllEmbeddings";
 import fs from "fs";
 import { openai } from "../clients/openai";
 import path from "path";
@@ -89,12 +90,11 @@ async function getEmbeddingSimilarity(input: string, n: number) {
 }
 
 async function getMostRelevantFiles(input: string, n: number) {
-  console.time("embeddings");
+  await computeAllEmbeddings();
   const filePaths = await getEmbeddingSimilarity(input, n);
   const files = filePaths.map(
     (path) => [path, fs.readFileSync(path, "utf-8")] as [string, string]
   );
-  console.timeEnd("embeddings");
   return files;
 }
 

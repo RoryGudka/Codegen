@@ -11,6 +11,7 @@ import { renameFileTool } from "../tools/renameFile/renameFileTool";
 import { searchFilesForKeywordTool } from "../tools/searchFilesForKeyword/searchFilesForKeywordTool";
 import { searchTheWebTool } from "../tools/searchTheWeb/searchTheWebTool";
 import { getFilesSimilarToStringTool } from "../tools/getFilesSimilarToString/getFilesSimilarToStringTool";
+import { getMostRelevantFilesTool } from "../tools/getMostRelevantFiles/getMostRelevantFilesTool";
 
 export const tools: ChatCompletionTool[] = [
   readFileTool,
@@ -25,4 +26,5 @@ export const tools: ChatCompletionTool[] = [
   searchTheWebTool,
   editContextFileTool,
   getFilesSimilarToStringTool,
+  getMostRelevantFilesTool,
 ];

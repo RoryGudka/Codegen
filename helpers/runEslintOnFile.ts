@@ -8,6 +8,7 @@ export async function runEslintOnFile(filePath: string): Promise<string> {
   const execOptions = configDir ? { cwd: configDir } : {};
 
   const hasEslintInstalled = await new Promise((res) => {
+    setTimeout(() => res(false), 2000);
     exec(`npx eslint --v`, execOptions, (_, __, stderr) => {
       if (stderr) res(false);
       else res(true);
