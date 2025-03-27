@@ -1,25 +1,21 @@
 #!/usr/bin/env node
-
-const { spawn } = require("child_process");
-const path = require("path");
+const { view } = require("../dist/view");
+const { gen } = require("../dist/gen");
+const { configure } = require("../dist/configure");
+const { embeddings } = require("../dist/embeddings");
 
 // Get the operation from the cli command
 const target = process.argv[2];
-if (target !== "gen" && target !== "view" && target !== "embeddings" && target !== "configure") {
-  process.exit(1);
+if (target === "configure") {
+  configure().then(() => process.exit(0));
+} else if (target === "embeddings") {
+  embeddings().then(() => process.exit(0));
+} else if (target === "gen") {
+  const userInput = process.argv[3];
+  const n = Number(process.argv[4] || 0);
+  gen(userInput, n).then(() => process.exit(0));
+} else if (target === "view") {
+  view().then(() => process.exit(0));
+} else {
+  throw new Error(`Invalid command: ${target}`);
 }
-
-// Capture arguments passed from the CLI command
-const inputArgs = process.argv.slice(3);
-
-// Construct the path to the dist script
-const scriptPath = path.join(__dirname, "..", "dist", `${target}.js`);
-
-// Run the script with additional input arguments
-const child = spawn("node", [scriptPath, ...inputArgs], {
-  stdio: "inherit",
-});
-
-child.on("close", (code) => {
-  process.exit(code);
-});

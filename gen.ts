@@ -3,7 +3,7 @@ import { getMostRelevantFiles } from "./helpers/getEmbeddingSimilarity";
 import { handlePrimaryAssistantStream } from "./helpers/handlePrimaryAssistantStream";
 import { openai } from "./clients/openai";
 
-async function main(userInput: string, n: number): Promise<void> {
+export async function gen(userInput: string, n: number) {
   try {
     const files = await getMostRelevantFiles(userInput, n);
 
@@ -39,7 +39,3 @@ async function main(userInput: string, n: number): Promise<void> {
     process.exit(1);
   }
 }
-
-const userInput = process.argv[2];
-const n = Number(process.argv[3] || "0");
-main(userInput, n).catch(console.error);

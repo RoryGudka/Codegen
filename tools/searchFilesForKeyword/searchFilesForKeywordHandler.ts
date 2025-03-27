@@ -1,5 +1,5 @@
 import fs from "fs";
-import ignore from "ignore";
+import { getFileStructure } from "../../helpers/getFileStructure";
 import path from "path";
 
 interface SearchKeywordParams {
@@ -13,59 +13,21 @@ function searchFilesForKeyword(
   let foundFiles: string[] = [];
 
   try {
-    // Load .gitignore patterns
-    const gitignorePath = path.join(dirPath, ".gitignore");
-    let ig = ignore();
-    if (fs.existsSync(gitignorePath)) {
-      const gitignoreContent = fs.readFileSync(gitignorePath).toString();
-      ig = ig.add(gitignoreContent);
-    }
+    const items = getFileStructure().split("\n");
 
-    // Read the contents of the directory
-    const items = fs.readdirSync(dirPath);
-
-    // Sort items to list directories first, then files
-    const sortedItems = items.sort((a, b) => {
-      const aPath = path.join(dirPath, a);
-      const bPath = path.join(dirPath, b);
-      const aIsDir = fs.statSync(aPath).isDirectory();
-      const bIsDir = fs.statSync(bPath).isDirectory();
-
-      if (aIsDir && !bIsDir) return -1;
-      if (!aIsDir && bIsDir) return 1;
-      return a.localeCompare(b);
-    });
-
-    for (const item of sortedItems) {
-      if (item === ".git") {
-        continue;
-      }
-
+    for (const item of items) {
       const itemPath = path.join(dirPath, item);
-      const stats = fs.statSync(itemPath);
-
-      const relativePath = path.relative(dirPath, itemPath);
-      if (ig.ignores(relativePath)) {
-        continue;
-      }
-
-      if (stats.isDirectory()) {
-        foundFiles = foundFiles.concat(
-          searchFilesForKeyword(searchString, itemPath)
-        );
-      } else {
-        try {
-          if (itemPath.includes(searchString)) {
+      try {
+        if (itemPath.includes(searchString)) {
+          foundFiles.push(itemPath);
+        } else {
+          const fileContent = fs.readFileSync(itemPath, "utf8");
+          if (fileContent.includes(searchString)) {
             foundFiles.push(itemPath);
-          } else {
-            const fileContent = fs.readFileSync(itemPath, "utf8");
-            if (fileContent.includes(searchString)) {
-              foundFiles.push(itemPath);
-            }
           }
-        } catch (error: any) {
-          console.error(`Error reading file ${itemPath}: ${error.message}`);
         }
+      } catch (error: any) {
+        console.error(`Error reading file ${itemPath}: ${error.message}`);
       }
     }
   } catch (error: any) {

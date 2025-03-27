@@ -2,19 +2,19 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-// Create an interface to read lines from the console input
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+export async function configure() {
+  // Create an interface to read lines from the console input
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
-const credentialsPath = path.resolve(".codegen", "credentials.json");
+  const credentialsPath = path.resolve(".codegen", "credentials.json");
 
-const askQuestion = (question: string): Promise<string> => {
-  return new Promise((resolve) => rl.question(question, resolve));
-};
+  const askQuestion = (question: string): Promise<string> => {
+    return new Promise((resolve) => rl.question(question, resolve));
+  };
 
-async function configure() {
   try {
     // Prompt user for their credentials
     const openaiApiKey = await askQuestion("Enter your OPENAI_API_KEY: ");
@@ -44,5 +44,3 @@ async function configure() {
     rl.close();
   }
 }
-
-configure().catch(console.error);

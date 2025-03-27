@@ -4,7 +4,8 @@ const execTool: ChatCompletionTool = {
   type: "function",
   function: {
     name: "exec",
-    description: "Executes a terminal command and returns the output or error.",
+    description:
+      "Executes a terminal command and returns the output or error. Avoid commands that will prompt you, as this functionality is currently unavailable.",
     parameters: {
       type: "object",
       properties: {
