@@ -1,6 +1,6 @@
 {
   "name": "@rorygudka/codegen",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Script to create an OpenAI assistant with tool inputs",
   "main": "dist/init.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .ts"
   },
   "bin": {
-    "codegen": "bin/cli.js"
+    "codegen": "dist/bin/cli.js"
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",

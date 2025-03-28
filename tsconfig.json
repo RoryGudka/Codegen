@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "moduleResolution": "node"
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "output-viewer/server.js", "eslint.config.j"],
   "exclude": ["node_modules", "**/*.spec.ts", "dist"]
 }

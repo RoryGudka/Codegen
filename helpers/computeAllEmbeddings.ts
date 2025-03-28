@@ -21,21 +21,29 @@ async function cleanupEmbeddingMap(trackedFiles: string[]) {
 
     // Check each file in the map against tracked files
     for (const filePath in embeddingMap) {
-      if (!trackedFiles.includes(filePath)) {
-        console.info(`Decomputed embeddings for ${filePath}`);
-        // Remove associated embedding files
-        for (const fileId of embeddingMap[filePath].embeddingFileIds) {
-          const embeddingFilePath = path.join(
-            ".codegen",
-            "embeddings",
-            `${fileId}.json`
-          );
-          if (fs.existsSync(embeddingFilePath)) {
-            fs.unlinkSync(embeddingFilePath);
+      if (fs.existsSync(filePath)) {
+        const fileStats = fs.statSync(filePath);
+        const actualLastEditDate = fileStats.mtime.toISOString();
+
+        if (
+          !trackedFiles.includes(filePath) ||
+          embeddingMap[filePath].lastFileEditDate !== actualLastEditDate
+        ) {
+          console.info(`Decomputed embeddings for ${filePath}`);
+          // Remove associated embedding files
+          for (const fileId of embeddingMap[filePath].embeddingFileIds) {
+            const embeddingFilePath = path.join(
+              ".codegen",
+              "embeddings",
+              `${fileId}.json`
+            );
+            if (fs.existsSync(embeddingFilePath)) {
+              fs.unlinkSync(embeddingFilePath);
+            }
           }
+          // Remove the entry from the map
+          delete embeddingMap[filePath];
         }
-        // Remove the entry from the map
-        delete embeddingMap[filePath];
       }
     }
 

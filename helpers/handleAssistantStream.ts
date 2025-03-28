@@ -63,7 +63,7 @@ async function handleAssistantStream(
           writeStream.write(
             `\n[Tool Call Result: ${toolCall.function.name}]\n`
           );
-          writeStream.write(JSON.stringify(result, null, 2));
+          writeStream.write(result);
           writeStream.write("\n");
 
           results.push([toolCall.id, result]);
@@ -75,10 +75,7 @@ async function handleAssistantStream(
           {
             tool_outputs: results.map(([id, response]) => ({
               tool_call_id: id,
-              output:
-                typeof response === "object"
-                  ? JSON.stringify(response, null, 2)
-                  : response.toString(),
+              output: response,
             })),
             stream: true,
           }
@@ -89,6 +86,8 @@ async function handleAssistantStream(
           handleToolCall
         );
         str += additionalContent;
+      } else {
+        console.log(chunk.event);
       }
     }
   } catch (error) {

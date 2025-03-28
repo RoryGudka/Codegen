@@ -6,7 +6,7 @@ interface SearchTheWebParams {
 
 const searchTheWebHandler = async ({ query }: SearchTheWebParams) => {
   try {
-    const response = await tvly.search(query, { searchDepth: "basic" });
+    const response = await tvly.search(query, { searchDepth: "advanced" });
     return JSON.stringify(response, null, 2);
   } catch (error: any) {
     return `An error occurred: ${error.message}`;

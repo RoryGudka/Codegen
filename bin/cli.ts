@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-const { view } = require("../dist/view");
-const { gen } = require("../dist/gen");
-const { configure } = require("../dist/configure");
-const { embeddings } = require("../dist/embeddings");
+
+import { configure } from "../configure";
+import { embeddings } from "../embeddings";
+import { gen } from "../gen";
+import { view } from "../view";
 
 // Get the operation from the cli command
 const target = process.argv[2];
