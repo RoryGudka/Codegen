@@ -86,8 +86,6 @@ async function handleAssistantStream(
           handleToolCall
         );
         str += additionalContent;
-      } else {
-        console.log(chunk.event);
       }
     }
   } catch (error) {

@@ -42,6 +42,7 @@ codegen configure
 
 This will prompt:
 
+- Enter your TOGETHER_API_KEY
 - Enter your OPENAI_API_KEY
 - Enter your TAVILY_API_KEY
 
