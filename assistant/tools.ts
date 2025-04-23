@@ -5,13 +5,13 @@ import { editContextFileTool } from "../tools/editContextFile/editContextFileToo
 import { editFileTool } from "../tools/editFile/editFileTool";
 import { endTaskTool } from "../tools/endTask/endTaskTool";
 import { execTool } from "../tools/exec/execTool";
+import { getFilesSimilarToStringTool } from "../tools/getFilesSimilarToString/getFilesSimilarToStringTool";
+import { getMostRelevantFilesTool } from "../tools/getMostRelevantFiles/getMostRelevantFilesTool";
 import { moveFileTool } from "../tools/moveFile/moveFileTool";
 import { readFileTool } from "../tools/readFile/readFileTool";
 import { renameFileTool } from "../tools/renameFile/renameFileTool";
 import { searchFilesForKeywordTool } from "../tools/searchFilesForKeyword/searchFilesForKeywordTool";
 import { searchTheWebTool } from "../tools/searchTheWeb/searchTheWebTool";
-import { getFilesSimilarToStringTool } from "../tools/getFilesSimilarToString/getFilesSimilarToStringTool";
-import { getMostRelevantFilesTool } from "../tools/getMostRelevantFiles/getMostRelevantFilesTool";
 
 export const tools: ChatCompletionTool[] = [
   readFileTool,

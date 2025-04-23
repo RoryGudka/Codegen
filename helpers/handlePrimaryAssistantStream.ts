@@ -1,4 +1,4 @@
-import { AssistantStreamEvent } from "openai/resources/beta/assistants";
+import { ChatCompletion } from "openai/resources";
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/index";
 import { handleAssistantStream } from "./handleAssistantStream";
 import { toolHandlers } from "../assistant/toolHandlers";
@@ -32,10 +32,10 @@ async function handleToolCall(toolCall: RequiredActionFunctionToolCall) {
  * @returns {Promise<string>} - Total content of stream output
  */
 async function handlePrimaryAssistantStream(
-  stream: AsyncIterable<AssistantStreamEvent>,
+  output: ChatCompletion,
   id: string
 ) {
-  return handleAssistantStream(stream, id, handleToolCall);
+  return handleAssistantStream(output, id, handleToolCall);
 }
 
 export { handlePrimaryAssistantStream };

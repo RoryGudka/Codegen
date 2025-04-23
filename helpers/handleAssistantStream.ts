@@ -1,7 +1,7 @@
-import { AssistantStreamEvent } from "openai/resources/beta/assistants";
+import { ChatCompletion, ChatCompletionMessageParam } from "openai/resources";
+
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/index";
 import fs from "fs";
-import { openai } from "../clients/openai";
 import path from "path";
 
 /**
@@ -12,11 +12,12 @@ import path from "path";
  * @returns {Promise<string>} - Total content of stream output
  */
 async function handleAssistantStream(
-  stream: AsyncIterable<AssistantStreamEvent>,
+  output: ChatCompletion,
   id: string,
   handleToolCall: (toolCall: RequiredActionFunctionToolCall) => Promise<string>
 ) {
-  // Create outputs directory if it doesn't exist
+  const newMessages: ChatCompletionMessageParam[] = [];
+
   const outputsDir = path.join(process.cwd(), ".codegen/outputs");
   if (!fs.existsSync(outputsDir)) {
     fs.mkdirSync(outputsDir, { recursive: true });
@@ -27,66 +28,34 @@ async function handleAssistantStream(
   const outputPath = path.join(outputsDir, `output-${id}.txt`);
   const writeStream = fs.createWriteStream(outputPath, { flags: "a" });
 
-  let str = "";
-
   try {
-    for await (const chunk of stream) {
-      if (chunk.event === "thread.message.delta") {
-        const { delta } = chunk.data;
-        if (delta.content && Array.isArray(delta.content)) {
-          for (const content of delta.content) {
-            if (content.type === "text" && content.text && content.text.value) {
-              writeStream.write(content.text.value);
-              str += content.text.value;
-            }
-          }
-        }
-      } else if (
-        chunk.event === "thread.run.requires_action" &&
-        handleToolCall
-      ) {
-        const toolCalls =
-          chunk.data.required_action?.submit_tool_outputs.tool_calls || [];
-        const results: [string, string][] = [];
-
-        for (const toolCall of toolCalls) {
-          writeStream.write(
-            `\n[Tool Call Arguments: ${toolCall.function.name}]\n`
-          );
-          writeStream.write(
-            JSON.stringify(JSON.parse(toolCall.function.arguments), null, 2)
-          );
-          writeStream.write("\n");
-
-          const result = await handleToolCall(toolCall);
-
-          writeStream.write(
-            `\n[Tool Call Result: ${toolCall.function.name}]\n`
-          );
-          writeStream.write(result);
-          writeStream.write("\n");
-
-          results.push([toolCall.id, result]);
-        }
-
-        const newStream = await openai.beta.threads.runs.submitToolOutputs(
-          chunk.data.thread_id,
-          chunk.data.id,
-          {
-            tool_outputs: results.map(([id, response]) => ({
-              tool_call_id: id,
-              output: response,
-            })),
-            stream: true,
-          }
+    const message = output.choices[0].message;
+    if (message?.tool_calls) {
+      for (const toolCall of message.tool_calls) {
+        console.log(toolCall);
+        writeStream.write(
+          `\n[Tool Call Arguments: ${toolCall.function.name}]\n`
         );
-        const additionalContent = await handleAssistantStream(
-          newStream,
-          id,
-          handleToolCall
+        writeStream.write(
+          JSON.stringify(JSON.parse(toolCall.function.arguments), null, 2)
         );
-        str += additionalContent;
+        writeStream.write("\n");
+
+        const result = await handleToolCall(toolCall);
+        newMessages.push({
+          tool_call_id: toolCall.id,
+          role: "tool",
+          name: toolCall.function.name,
+          content: result,
+        } as any);
+
+        writeStream.write(`\n[Tool Call Result: ${toolCall.function.name}]\n`);
+        writeStream.write(result);
+        writeStream.write("\n");
       }
+    } else if (message?.content) {
+      newMessages.push({ role: "assistant", content: message.content });
+      writeStream.write(message.content);
     }
   } catch (error) {
     console.error("Error while streaming:", error);
@@ -95,7 +64,7 @@ async function handleAssistantStream(
     writeStream.end();
   }
 
-  return str;
+  return newMessages;
 }
 
 export { handleAssistantStream };
