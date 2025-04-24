@@ -1,16 +1,17 @@
 import { createFileHandler } from "../tools/createFile/createFileHandler";
 import { deleteFileHandler } from "../tools/deleteFile/deleteFileHandler";
-import { editContextFileHandler } from "../tools/editContextFile/editContextFileHandler";
+import { diffHistoryHandler } from "../tools/diffHistory/diffHistoryHandler";
 import { editFileHandler } from "../tools/editFile/editFileHandler";
+import { editMemoryFileHandler } from "../tools/editMemoryFile/editMemoryFileHandler";
 import { endTaskHandler } from "../tools/endTask/endTaskHandler";
 import { execHandler } from "../tools/exec/execHandler";
+import { fileSearchHandler } from "../tools/fileSearch/fileSearchHandler";
+import { grepSearchHandler } from "../tools/grepSearch/grepSearchHandler";
+import { listDirHandler } from "../tools/listDir/listDirHandler";
 import { moveFileHandler } from "../tools/moveFile/moveFileHandler";
 import { readFileHandler } from "../tools/readFile/readFileHandler";
 import { renameFileHandler } from "../tools/renameFile/renameFileHandler";
-import { searchFilesForKeywordHandler } from "../tools/searchFilesForKeyword/searchFilesForKeywordHandler";
 import { searchTheWebHandler } from "../tools/searchTheWeb/searchTheWebHandler";
-import { getFilesSimilarToStringHandler } from "../tools/getFilesSimilarToString/getFilesSimilarToStringHandler";
-import { getMostRelevantFilesHandler } from "../tools/getMostRelevantFiles/getMostRelevantFilesHandler";
 
 const toolHandlers = {
   readFile: readFileHandler,
@@ -19,13 +20,14 @@ const toolHandlers = {
   deleteFile: deleteFileHandler,
   moveFile: moveFileHandler,
   renameFile: renameFileHandler,
-  editContextFile: editContextFileHandler,
-  searchFilesForKeyword: searchFilesForKeywordHandler,
+  editMemoryFile: editMemoryFileHandler,
   searchTheWeb: searchTheWebHandler,
   exec: execHandler,
   endTask: endTaskHandler,
-  getFilesSimilarToString: getFilesSimilarToStringHandler,
-  getMostRelevantFiles: getMostRelevantFilesHandler,
+  diffHistory: diffHistoryHandler,
+  fileSearch: fileSearchHandler,
+  grepSearch: grepSearchHandler,
+  listDir: listDirHandler,
 };
 
 export { toolHandlers };

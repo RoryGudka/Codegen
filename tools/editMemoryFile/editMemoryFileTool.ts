@@ -1,17 +1,17 @@
 import { ChatCompletionTool } from "openai/resources/chat/index";
 
-const editContextFileTool: ChatCompletionTool = {
+const editMemoryFileTool: ChatCompletionTool = {
   type: "function",
   function: {
-    name: "editContextFile",
+    name: "editMemoryFile",
     description:
-      "Modifies the codebase context file to save information between requests.",
+      "Modifies the memory file for the workspace to maintain important knowledge between requests.",
     parameters: {
       type: "object",
       properties: {
         content: {
           type: "string",
-          description: "The new content of the context file",
+          description: "The new content of the memory file",
         },
       },
       required: ["content"],
@@ -19,4 +19,4 @@ const editContextFileTool: ChatCompletionTool = {
   },
 };
 
-export { editContextFileTool };
+export { editMemoryFileTool };

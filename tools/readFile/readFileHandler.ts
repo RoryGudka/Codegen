@@ -14,7 +14,14 @@ const readFileHandler = async ({
     return "File path does not exist. Try again with corrected file path.";
   }
 
-  return fs.readFileSync(fullFilePath, "utf8");
+  const content = fs.readFileSync(fullFilePath, "utf8");
+  const lines = content.split("\n");
+
+  const numberedContent = lines
+    .map((line, index) => `${index + 1}. ${line}`)
+    .join("\n");
+
+  return numberedContent;
 };
 
 export { readFileHandler };

@@ -16,9 +16,11 @@
   },
   "dependencies": {
     "@tavily/core": "^0.3.3",
+    "@vscode/ripgrep": "^1.15.11",
     "dotenv": "^16.4.1",
     "express": "^4.21.2",
     "fs-extra": "^11.3.0",
+    "fuzzysort": "^3.1.0",
     "ignore": "^7.0.3",
     "openai": "^4.28.0",
     "tiktoken": "^1.0.20",

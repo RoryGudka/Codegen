@@ -1,12 +1,12 @@
 import fs from "fs";
 import path from "path";
 
-interface EditContextFileParams {
+interface EditMemoryFileParams {
   content: string;
 }
 
-const editContextFileHandler = async ({ content }: EditContextFileParams) => {
-  const fullEditFilePath = path.join(process.cwd(), ".codegen/context.txt");
+const editMemoryFileHandler = async ({ content }: EditMemoryFileParams) => {
+  const fullEditFilePath = path.join(process.cwd(), ".codegen/memory.txt");
 
   // Create directory if it doesn't exist
   const dirPath = path.dirname(fullEditFilePath);
@@ -21,7 +21,7 @@ const editContextFileHandler = async ({ content }: EditContextFileParams) => {
 
   fs.writeFileSync(fullEditFilePath, content);
 
-  return "Context file edited successfully";
+  return "Memory edited successfully";
 };
 
-export { editContextFileHandler };
+export { editMemoryFileHandler };
