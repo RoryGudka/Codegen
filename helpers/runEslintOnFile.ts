@@ -16,6 +16,20 @@ export async function runEslintOnFile(filePath: string): Promise<string> {
   });
   if (!hasEslintInstalled) return "No instance of eslint found.";
 
+  await new Promise((res) => {
+    exec(
+      `npx eslint --fix "${absoluteFilePath}"`,
+      execOptions,
+      (_, stdout, stderr) => {
+        if (stderr) {
+          res(`ERROR: ${stderr}`);
+        } else {
+          res(stdout || "No linting issues found.");
+        }
+      }
+    );
+  });
+
   return new Promise((res) => {
     exec(
       `npx eslint "${absoluteFilePath}"`,

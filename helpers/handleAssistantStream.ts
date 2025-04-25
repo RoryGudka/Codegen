@@ -1,5 +1,5 @@
 import { AssistantStreamEvent } from "openai/resources/beta/assistants";
-import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/index";
+import { ToolCall } from "./handleToolCall";
 import fs from "fs";
 import { openai } from "../clients/openai";
 import path from "path";
@@ -14,7 +14,7 @@ import path from "path";
 async function handleAssistantStream(
   stream: AsyncIterable<AssistantStreamEvent>,
   id: string,
-  handleToolCall: (toolCall: RequiredActionFunctionToolCall) => Promise<string>
+  handleToolCall: (toolCall: ToolCall) => Promise<string>
 ) {
   // Create outputs directory if it doesn't exist
   const outputsDir = path.join(process.cwd(), ".codegen/outputs");
@@ -49,20 +49,22 @@ async function handleAssistantStream(
           chunk.data.required_action?.submit_tool_outputs.tool_calls || [];
         const results: [string, string][] = [];
 
-        for (const toolCall of toolCalls) {
+        for (const call of toolCalls) {
+          const toolCall: ToolCall = {
+            id: call.id,
+            name: call.function.name,
+            input: call.function.arguments,
+          };
+
+          writeStream.write(`\n[Tool Call Arguments: ${toolCall.name}]\n`);
           writeStream.write(
-            `\n[Tool Call Arguments: ${toolCall.function.name}]\n`
-          );
-          writeStream.write(
-            JSON.stringify(JSON.parse(toolCall.function.arguments), null, 2)
+            JSON.stringify(JSON.parse(toolCall.input), null, 2)
           );
           writeStream.write("\n");
 
           const result = await handleToolCall(toolCall);
 
-          writeStream.write(
-            `\n[Tool Call Result: ${toolCall.function.name}]\n`
-          );
+          writeStream.write(`\n[Tool Call Result: ${toolCall.name}]\n`);
           writeStream.write(result);
           writeStream.write("\n");
 
