@@ -1,4 +1,5 @@
 import { AssistantStreamEvent } from "openai/resources/beta/assistants";
+import { MessageParam } from "@anthropic-ai/sdk/resources";
 import { ToolCall } from "./handleToolCall";
 import fs from "fs";
 import { openai } from "../clients/openai";
@@ -14,7 +15,10 @@ import path from "path";
 async function handleAssistantStream(
   stream: AsyncIterable<AssistantStreamEvent>,
   id: string,
-  handleToolCall: (toolCall: ToolCall) => Promise<string>
+  handleToolCall: (
+    toolCall: ToolCall,
+    messages: MessageParam[]
+  ) => Promise<string>
 ) {
   // Create outputs directory if it doesn't exist
   const outputsDir = path.join(process.cwd(), ".codegen/outputs");
@@ -62,7 +66,7 @@ async function handleAssistantStream(
           );
           writeStream.write("\n");
 
-          const result = await handleToolCall(toolCall);
+          const result = await handleToolCall(toolCall, []);
 
           writeStream.write(`\n[Tool Call Result: ${toolCall.name}]\n`);
           writeStream.write(result);

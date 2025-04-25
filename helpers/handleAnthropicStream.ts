@@ -21,7 +21,10 @@ async function handleAnthropicStream(
   id: string,
   files: [string, string][],
   messages: MessageParam[],
-  handleToolCall: (toolCall: ToolCall) => Promise<string>
+  handleToolCall: (
+    toolCall: ToolCall,
+    messages: MessageParam[]
+  ) => Promise<string>
 ) {
   const outputsDir = path.join(process.cwd(), ".codegen/outputs");
   if (!fs.existsSync(outputsDir)) {
@@ -58,7 +61,16 @@ async function handleAnthropicStream(
         }
       } else if (chunk.type === "content_block_stop") {
         if (type === "text") {
-          messages.push({ role: "assistant", content: str });
+          messages.push({
+            role: "assistant",
+            content: [
+              {
+                type: "text",
+                text: str,
+                cache_control: { type: "ephemeral" },
+              },
+            ],
+          });
         } else if (type === "tool_use") {
           const toolCall: ToolCall = {
             id: toolCallId,
@@ -69,6 +81,8 @@ async function handleAnthropicStream(
         }
 
         str = "";
+      } else if (chunk.type === "message_delta") {
+        console.info("Usage:", chunk.usage);
       }
     }
 
@@ -82,12 +96,12 @@ async function handleAnthropicStream(
               id: toolCall.id,
               name: toolCall.name,
               input: JSON.parse(toolCall.input),
+              cache_control: { type: "ephemeral" },
             },
           ],
         });
 
-        const result = await handleToolCall(toolCall);
-        console.log(result);
+        const result = await handleToolCall(toolCall, messages);
 
         writeStream.write(`\n[Tool Call: ${toolCall.name}]\n\n`);
         writeStream.write(JSON.stringify(JSON.parse(toolCall.input), null, 2));
@@ -100,6 +114,7 @@ async function handleAnthropicStream(
               type: "tool_result",
               tool_use_id: toolCall.id,
               content: result,
+              cache_control: { type: "ephemeral" },
             },
           ],
         });

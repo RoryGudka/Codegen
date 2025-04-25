@@ -6,7 +6,18 @@ import { handleToolCall } from "./handleToolCall";
 
 export async function generateWithAnthropic(userInput: string, n: number) {
   try {
-    const messages: MessageParam[] = [{ role: "user", content: userInput }];
+    const messages: MessageParam[] = [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: userInput,
+            cache_control: { type: "ephemeral" },
+          },
+        ],
+      },
+    ];
     const files = await getMostRelevantFiles(userInput, n);
 
     const { stream, id } = await createAnthropicStream(files, messages);
@@ -16,11 +27,16 @@ export async function generateWithAnthropic(userInput: string, n: number) {
     for (let i = 0; i < 5; i++) {
       messages.push({
         role: "user",
-        content:
-          "Continue the task. If all changes are made and validated, you must use the endTask tool to exit.",
+        content: [
+          {
+            type: "text",
+            text: "Continue the task. If all changes are made and validated, you must use the endTask tool to exit.",
+            cache_control: { type: "ephemeral" },
+          },
+        ],
       });
 
-      const { stream } = await createAnthropicStream(files, messages);
+      const { stream } = await createAnthropicStream(files, messages, true);
       await handleAnthropicStream(stream, id, files, messages, handleToolCall);
     }
   } catch (error) {
