@@ -1,6 +1,6 @@
 {
   "name": "@rorygudka/codegen",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Script to create an OpenAI assistant with tool inputs",
   "main": "dist/init.js",
   "scripts": {
