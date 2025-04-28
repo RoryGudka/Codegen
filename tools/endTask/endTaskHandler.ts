@@ -2,14 +2,14 @@ interface EndTaskParams {
   isSuccess: boolean;
 }
 
-const endTaskHandler = async ({
-  isSuccess,
-}: EndTaskParams): Promise<string> => {
-  if (isSuccess) {
-    process.exit(0);
-  } else {
-    process.exit(1);
-  }
+const endTaskHandler = async ({ isSuccess }: EndTaskParams) => {
+  return await new Promise<string>(() => {
+    if (isSuccess) {
+      console.info("Task completed successfully");
+    } else {
+      console.log("Task failed");
+    }
+  });
 };
 
 export { endTaskHandler };

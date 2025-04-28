@@ -3,8 +3,12 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 
-export const view = async () => {
-  return new Promise(() => {
+// Extract server functionality to be reused by both gen and view
+export const startServer = async () => {
+  return new Promise<{
+    app: express.Express;
+    server: any;
+  }>((resolve) => {
     const currentWorkingDirectory = process.cwd();
     const app = express();
     const PORT = 5000;
@@ -14,7 +18,7 @@ export const view = async () => {
       "outputs"
     );
     const viewHtml = fs.readFileSync(
-      path.join(__dirname, "..", "view.html"),
+      path.join(__dirname, "../..", "view.html"),
       "utf8"
     );
 
@@ -28,7 +32,7 @@ export const view = async () => {
     const wss = new WebSocket.Server({ server });
 
     wss.on("connection", (ws, req) => {
-      const id = req.url?.split("?")?.[1]?.split("=")?.[1];
+      const id = req.url?.split("?")[1]?.split("=")[1];
       console.info("Client connected");
 
       const sendUpdates = () => {
@@ -44,5 +48,7 @@ export const view = async () => {
 
       ws.on("close", () => watcher.close()); // Cleanup when client disconnects
     });
+
+    resolve({ app, server });
   });
 };

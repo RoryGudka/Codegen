@@ -5,7 +5,7 @@ const editFileTool: ChatCompletionTool = {
   function: {
     name: "editFile",
     description:
-      "Edits a file by applying a series of code replacements or insertions specified by line ranges.",
+      "Edits a file by applying a series of code replacements or insertions specified by line ranges. Each edit range should select an entire block to ensure that there is no ambiguity in resolution.",
     parameters: {
       type: "object",
       properties: {

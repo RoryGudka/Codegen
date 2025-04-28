@@ -26,7 +26,6 @@ npm install -g @rorygudka/codegen
 - **Configure**: Setup credentials for OpenAI and Tavily.
 - **Embeddings**: Generate a vector store for the codebase files.
 - **Gen**: Modify files in the codebase based on a provided command input.
-- **View**: Launch a local web server to render output files.
 
 ## Commands
 
@@ -87,17 +86,7 @@ Relevant files (optional): 5
 
 This will consider the 5 most relevant files while adding feature X.
 
-### View
-
-The view command starts a local web server at `localhost:5000` that serves a simple webpage displaying the results of the last operation executed by the gen command.
-
-**Usage:**
-
-```bash
-codegen view
-```
-
-The webpage automatically updates as new results become available, providing a real-time update display for any code generation tasks.
+This command also starts a local web server at `localhost:5000` that serves a simple webpage displaying the results of the current operation executed by the gen command.
 
 ## License
 
