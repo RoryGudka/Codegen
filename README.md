@@ -42,6 +42,7 @@ codegen configure
 This will prompt:
 
 - Enter your ANTHROPIC_API_KEY
+- Enter your OPENAI_API_KEY
 - Enter your TAVILY_API_KEY
 
 The credentials are saved to a JSON file located at `.codegen/credentials.json`.

@@ -42,11 +42,9 @@ export const startServer = async () => {
         });
       };
 
-      sendUpdates();
-
-      const watcher = fs.watch(OUTPUT_DIR, sendUpdates);
-
-      ws.on("close", () => watcher.close()); // Cleanup when client disconnects
+      setInterval(() => {
+        sendUpdates();
+      }, 50);
     });
 
     resolve({ app, server });

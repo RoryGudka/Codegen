@@ -9,7 +9,7 @@ interface ReadFileParams {
 }
 
 const readFileHandler = async (
-  { filePath, disableTruncation }: ReadFileParams,
+  { filePath, disableTruncation = true }: ReadFileParams,
   messages: MessageParam[]
 ): Promise<string> => {
   const fullFilePath = path.join(process.cwd(), filePath);

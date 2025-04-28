@@ -18,11 +18,13 @@ export async function configure() {
   try {
     // Prompt user for their credentials
     const anthropicApiKey = await askQuestion("Enter your ANTHROPIC_API_KEY: ");
+    const openaiApiKey = await askQuestion("Enter your OPENAI_API_KEY: ");
     const tavilyApiKey = await askQuestion("Enter your TAVILY_API_KEY: ");
 
     // Prepare credentials object
     const credentials = {
       ANTHROPIC_API_KEY: anthropicApiKey.trim(),
+      OPENAI_API_KEY: openaiApiKey.trim(),
       TAVILY_API_KEY: tavilyApiKey.trim(),
     };
 
