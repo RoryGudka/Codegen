@@ -12,6 +12,7 @@ import { moveFileHandler } from "../tools/moveFile/moveFileHandler";
 import { readFileHandler } from "../tools/readFile/readFileHandler";
 import { renameFileHandler } from "../tools/renameFile/renameFileHandler";
 import { searchTheWebHandler } from "../tools/searchTheWeb/searchTheWebHandler";
+import { semanticSearchHandler } from "../tools/semanticSearch/semanticSearchHandler";
 
 const toolHandlers = {
   readFile: readFileHandler,
@@ -27,6 +28,7 @@ const toolHandlers = {
   diffHistory: diffHistoryHandler,
   fileSearch: fileSearchHandler,
   grepSearch: grepSearchHandler,
+  semanticSearch: semanticSearchHandler,
   listDir: listDirHandler,
 };
 

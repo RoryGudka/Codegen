@@ -9,13 +9,7 @@ export async function generateWithAnthropic(userInput: string, n: number) {
     const messages: MessageParam[] = [
       {
         role: "user",
-        content: [
-          {
-            type: "text",
-            text: userInput,
-            cache_control: { type: "ephemeral" },
-          },
-        ],
+        content: [{ type: "text", text: userInput }],
       },
     ];
     const files = await getMostRelevantFiles(userInput, n);
@@ -31,7 +25,6 @@ export async function generateWithAnthropic(userInput: string, n: number) {
           {
             type: "text",
             text: "Continue the task. If all changes are made and validated, you must use the endTask tool to exit.",
-            cache_control: { type: "ephemeral" },
           },
         ],
       });

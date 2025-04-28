@@ -64,13 +64,7 @@ async function grepSearchHandler({
 }: GrepSearchParams): Promise<string> {
   try {
     // Build the ripgrep arguments
-    // Add --no-ignore-vcs to disable built-in VCS ignoring, we'll handle it ourselves
-    const rgArgs = [
-      `--max-count=${n}`,
-      "--no-heading",
-      "--line-number",
-      "--no-ignore-vcs",
-    ];
+    const rgArgs = [`--max-count=${n}`, "--no-heading", "--line-number"];
 
     // Add case sensitivity flag
     if (!caseSensitive) {

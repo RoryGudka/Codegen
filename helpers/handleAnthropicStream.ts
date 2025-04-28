@@ -63,13 +63,7 @@ async function handleAnthropicStream(
         if (type === "text") {
           messages.push({
             role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: str,
-                cache_control: { type: "ephemeral" },
-              },
-            ],
+            content: [{ type: "text", text: str }],
           });
         } else if (type === "tool_use") {
           const toolCall: ToolCall = {
@@ -81,8 +75,6 @@ async function handleAnthropicStream(
         }
 
         str = "";
-      } else if (chunk.type === "message_delta") {
-        console.info("Usage:", chunk.usage);
       }
     }
 
@@ -96,7 +88,6 @@ async function handleAnthropicStream(
               id: toolCall.id,
               name: toolCall.name,
               input: JSON.parse(toolCall.input),
-              cache_control: { type: "ephemeral" },
             },
           ],
         });
@@ -110,17 +101,12 @@ async function handleAnthropicStream(
         messages.push({
           role: "user",
           content: [
-            {
-              type: "tool_result",
-              tool_use_id: toolCall.id,
-              content: result,
-              cache_control: { type: "ephemeral" },
-            },
+            { type: "tool_result", tool_use_id: toolCall.id, content: result },
           ],
         });
       }
 
-      const { stream } = await createAnthropicStream(files, messages);
+      const { stream } = await createAnthropicStream(files, messages, true);
       await handleAnthropicStream(stream, id, files, messages, handleToolCall);
     }
   } catch (error) {

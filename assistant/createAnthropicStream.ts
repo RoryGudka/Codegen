@@ -3,6 +3,7 @@ import { MessageParam, Tool, ToolUnion } from "@anthropic-ai/sdk/resources";
 import { anthropic } from "../clients/anthropic";
 import { createSystemPrompt } from "./createSystemPrompt";
 import { nanoid } from "nanoid";
+import { produce } from "immer";
 import { retryWithRateLimit } from "../helpers/retryWithRateLimit";
 import { tools } from "./tools";
 
@@ -11,6 +12,12 @@ export async function createAnthropicStream(
   messages: MessageParam[],
   disableLogs?: boolean
 ) {
+  const formatted = tools.map((tool) => ({
+    name: tool.function.name,
+    description: tool.function.description,
+    input_schema: tool.function.parameters as Tool.InputSchema,
+  })) as ToolUnion[];
+
   try {
     // Use the retry function to handle rate limits
     const stream = await retryWithRateLimit(async () => {
@@ -18,14 +25,9 @@ export async function createAnthropicStream(
         model: "claude-3-7-sonnet-20250219",
         max_tokens: 64000,
         stream: true,
-        tools: tools.map(
-          (tool): ToolUnion => ({
-            name: tool.function.name,
-            description: tool.function.description,
-            input_schema: tool.function.parameters as Tool.InputSchema,
-            cache_control: { type: "ephemeral" },
-          })
-        ),
+        tools: produce(formatted, (draft) => {
+          draft[draft.length - 1].cache_control = { type: "ephemeral" };
+        }),
         system: [
           {
             type: "text",
@@ -33,7 +35,18 @@ export async function createAnthropicStream(
             cache_control: { type: "ephemeral" },
           },
         ],
-        messages,
+        messages: produce(messages, (draft) => {
+          const content = draft[draft.length - 1].content;
+          if (typeof content !== "string") {
+            const block = content[content.length - 1];
+            if (
+              block.type !== "thinking" &&
+              block.type !== "redacted_thinking"
+            ) {
+              block.cache_control = { type: "ephemeral" };
+            }
+          }
+        }),
       });
     });
 

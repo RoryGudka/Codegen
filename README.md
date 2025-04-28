@@ -67,16 +67,22 @@ The gen command is the core functionality of Codegen, allowing you to modify fil
 **Usage:**
 
 ```bash
-codegen gen <command> <n>
+codegen gen
+
+Prompt: [command]
+Relevant files (optional): [n]
 ```
 
-- `<command>`: Describe the intended changes or tasks. This input is sent to the OpenAI API for processing.
-- `<n>`: Top n most relevant files computed from embeddings (optional, default is 0).
+- `[command]`: Describe the intended changes or tasks. This input is sent to the OpenAI API for processing.
+- `[n]`: Top n most relevant files computed from embeddings (optional, default is 0).
 
-Example:
+Example with arguments:
 
 ```bash
-codegen gen "Add a new feature X" 5
+codegen gen
+
+Prompt: "Add a new feature X"
+Relevant files (optional): 5
 ```
 
 This will consider the 5 most relevant files while adding feature X.
