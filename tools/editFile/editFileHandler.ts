@@ -12,8 +12,12 @@ interface EditFileParams {
 
 const applyUpdate = (fileContent: string, update: string): string => {
   const placeholderRegex = /^\s*{{\s*\.\.\.\s*}}\s*$/;
-  const fileLines = fileContent.split("\n");
-  const updateLines = update.split("\n");
+  const fileLines = fileContent
+    .split("\n")
+    .map((line) => (line.endsWith("\r") ? line.slice(0, -1) : line));
+  const updateLines = update
+    .split("\n")
+    .map((line) => (line.endsWith("\r") ? line.slice(0, -1) : line));
   const diff = patienceDiff(fileLines, updateLines);
   const bLines = diff.lines.filter((line) => line.bIndex !== -1);
   const aLines = diff.lines.filter((line) => line.aIndex !== -1);
@@ -22,15 +26,16 @@ const applyUpdate = (fileContent: string, update: string): string => {
   bLines.forEach((line, i) => {
     if (placeholderRegex.test(line.line)) {
       if (i !== 0 && bLines[i - 1].aIndex === -1) {
-        errors.push(line.bIndex);
+        errors.push(bLines[i - 1].bIndex);
       }
       if (i !== bLines.length - 1 && bLines[i + 1].aIndex === -1) {
-        errors.push(line.bIndex);
+        errors.push(bLines[i + 1].bIndex);
       }
     }
   });
 
   if (errors.length) {
+    console.log(aLines, bLines);
     throw new Error(
       `One or more context lines could not be resolved:\n\`\`\`\n${diff.lines
         .filter((line) => line.bIndex !== -1)
