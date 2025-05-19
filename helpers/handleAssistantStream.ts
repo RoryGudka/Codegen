@@ -60,7 +60,17 @@ async function handleAssistantStream(
             input: call.function.arguments,
           };
 
+          writeStream.write(`\n[Tool Call Arguments: ${toolCall.name}]\n`);
+          writeStream.write(
+            JSON.stringify(JSON.parse(toolCall.input), null, 2)
+          );
+          writeStream.write("\n");
+
           const result = await handleToolCall(toolCall, []);
+
+          writeStream.write(`\n[Tool Call Result: ${toolCall.name}]\n`);
+          writeStream.write(result);
+          writeStream.write("\n");
 
           results.push([toolCall.id, result]);
         }
