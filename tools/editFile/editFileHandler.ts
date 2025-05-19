@@ -1,69 +1,93 @@
+import { Line, patienceDiff } from "../../helpers/patienceDiff";
+
 import fs from "fs";
 import path from "path";
 import { runEslintOnFile } from "../../helpers/runEslintOnFile";
 import { runPrettierOnFile } from "../../helpers/runPrettierOnFile";
 
-interface Edit {
-  startLine: number;
-  endLine: number;
-  newContent: string;
-  isInsertion?: boolean; // Optional, defaults to false
-}
-
 interface EditFileParams {
   editFilePath: string;
-  edits: Edit[];
+  update: string;
 }
+
+const applyUpdate = (fileContent: string, update: string): string => {
+  const placeholderRegex = /^\s*{{\s*\.\.\.\s*}}\s*$/;
+  const fileLines = fileContent.split("\n");
+  const updateLines = update.split("\n");
+  const diff = patienceDiff(fileLines, updateLines);
+  const bLines = diff.lines.filter((line) => line.bIndex !== -1);
+  const aLines = diff.lines.filter((line) => line.aIndex !== -1);
+
+  const errors: number[] = [];
+  bLines.forEach((line, i) => {
+    if (placeholderRegex.test(line.line)) {
+      if (i !== 0 && bLines[i - 1].aIndex === -1) {
+        errors.push(line.bIndex);
+      }
+      if (i !== bLines.length - 1 && bLines[i + 1].aIndex === -1) {
+        errors.push(line.bIndex);
+      }
+    }
+  });
+
+  if (errors.length) {
+    throw new Error(
+      `One or more context lines could not be resolved:\n\`\`\`\n${diff.lines
+        .filter((line) => line.bIndex !== -1)
+        .map((line, i) => `${errors.includes(i) ? "X" : " "}${line.line}`)
+        .join("\n")}\n\`\`\``
+    );
+  }
+
+  const content: Line[] = [];
+  bLines.forEach((line, i) => {
+    if (placeholderRegex.test(line.line)) {
+      if (i === 0 && i === bLines.length - 1) {
+        const start = 0;
+        const end = aLines.length;
+        content.push(...aLines.slice(start, end));
+      } else if (i === 0) {
+        const start = 0;
+        const end = bLines[i + 1].aIndex;
+        content.push(...aLines.slice(start, end));
+      } else if (i === bLines.length - 1) {
+        const start = bLines[i - 1].aIndex + 1;
+        const end = aLines.length;
+        content.push(...aLines.slice(start, end));
+      } else {
+        const start = bLines[i - 1].aIndex + 1;
+        const end = bLines[i + 1].aIndex;
+        content.push(...aLines.slice(start, end));
+      }
+    } else content.push(line);
+  });
+
+  return content.map((line) => line.line).join("\n");
+};
 
 const editFileHandler = async ({
   editFilePath,
-  edits,
+  update,
 }: EditFileParams): Promise<string> => {
-  const fullEditFilePath = path.join(process.cwd(), editFilePath);
+  try {
+    const fullEditFilePath = path.join(process.cwd(), editFilePath);
 
-  if (!fs.existsSync(fullEditFilePath)) {
-    return "File path does not exist. Try again with createFile or corrected file path.";
+    if (!fs.existsSync(fullEditFilePath)) {
+      return "File path does not exist. Try again with createFile or corrected file path.";
+    }
+
+    const fileContent = fs.readFileSync(fullEditFilePath, "utf8");
+    const updatedContent = applyUpdate(fileContent, update);
+    fs.writeFileSync(fullEditFilePath, updatedContent);
+
+    const formattingResult = await runPrettierOnFile(fullEditFilePath);
+    const lintingResult = await runEslintOnFile(fullEditFilePath);
+
+    return `File edited successfully.\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}\n\nThis is the final file content. If this is not correct, edit the file again, rewriting the whole file without placeholders if necessary:\n\n${updatedContent}`;
+  } catch (e: any) {
+    console.error(e);
+    return `Error: ${e.message}`;
   }
-
-  const fileContent = fs.readFileSync(fullEditFilePath, "utf8");
-  const fileLines = fileContent.split("\n");
-
-  // Sort edits in descending order to avoid line number shifts
-  edits.sort((a, b) => b.startLine - a.startLine);
-
-  for (const { startLine, endLine, newContent, isInsertion = false } of edits) {
-    // Validate line numbers
-    if (startLine < 1 || endLine < 1 || startLine > endLine) {
-      return `Invalid line numbers: startLine=${startLine}, endLine=${endLine}. Lines must be positive and startLine <= endLine.`;
-    }
-    if (isInsertion && startLine !== endLine) {
-      return `Invalid insertion: startLine=${startLine} must equal endLine=${endLine} for insertions.`;
-    }
-    if (startLine > fileLines.length + 1) {
-      return `Invalid startLine=${startLine}: File has only ${fileLines.length} lines.`;
-    }
-
-    const newLines = newContent === "" ? [] : newContent.split("\n");
-
-    if (isInsertion) {
-      // Insert newContent before startLine
-      const spliceStart = startLine - 1;
-      fileLines.splice(spliceStart, 0, ...newLines);
-    } else {
-      // Replace lines from startLine to endLine (inclusive)
-      const spliceStart = startLine - 1;
-      const linesToRemove = endLine - startLine + 1;
-      fileLines.splice(spliceStart, linesToRemove, ...newLines);
-    }
-  }
-
-  // Write the updated content back to the file
-  fs.writeFileSync(fullEditFilePath, fileLines.join("\n"));
-
-  const formattingResult = await runPrettierOnFile(fullEditFilePath);
-  const lintingResult = await runEslintOnFile(fullEditFilePath);
-
-  return `File edited successfully.\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}`;
 };
 
 export { editFileHandler };

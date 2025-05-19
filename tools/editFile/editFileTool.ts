@@ -5,7 +5,7 @@ const editFileTool: ChatCompletionTool = {
   function: {
     name: "editFile",
     description:
-      "Edits a file by applying a series of code replacements or insertions specified by line ranges. Each edit range should select an entire block to ensure that there is no ambiguity in resolution.",
+      "Use this tool to edit an existing file. Specify ONLY the precise lines of code that you wish to edit. NEVER specify or write out unchanged code. Instead, represent all unchanged code using this special placeholder: {{ ... }}. To edit multiple, non-adjacent lines of code in the same file, make a single call to this tool. Specify each edit in sequence with the special placeholder {{ ... }} to represent unchanged code in between edited lines.Here's an example of how to edit three non-adjacent lines of code at once:\n{{ ... }}\nedited_line_1\n{{ ... }}\nedited_line_2\n{{ ... }}\nedited_line_3\n{{ ... }}\nThis will be compared against the original file content using patience diff to replace all placeholders with their corresponding unchanged code. You should minimize the unchanged code you write, but each edit should contain sufficient context of unchanged lines around the code you're editing to resolve ambiguity. DO NOT omit spans of pre-existing code (or comments) without using the {{ ... }} placeholder to indicate its absence. ALWAYS make sure to start and end your edit with the {{ ... }} placeholder, unless your edit includes the first and/or the last lines of code for the file. If you omit the placeholder, the diff algorithm may inadvertently delete these lines.",
     parameters: {
       type: "object",
       properties: {
@@ -13,40 +13,13 @@ const editFileTool: ChatCompletionTool = {
           type: "string",
           description: "The path to the file to edit.",
         },
-        edits: {
-          type: "array",
+        update: {
+          type: "string",
           description:
-            "An array of edit objects specifying line ranges and new content. Lines are one-based. Use isInsertion: true for insertions before a line, or isInsertion: false (or omit) for replacements.",
-          items: {
-            type: "object",
-            properties: {
-              startLine: {
-                type: "number",
-                description:
-                  "The starting line number (inclusive, one-based). For insertions (isInsertion: true), content is inserted before this line; endLine must equal startLine.",
-              },
-              endLine: {
-                type: "number",
-                description:
-                  "The ending line number (inclusive, one-based). For replacements (isInsertion: false), specifies the last line to replace. For insertions (isInsertion: true), must equal startLine.",
-              },
-              newContent: {
-                type: "string",
-                description:
-                  "The new content to replace the specified lines or insert at the specified position. Use empty string for deletions (isInsertion: false).",
-              },
-              isInsertion: {
-                type: "boolean",
-                description:
-                  "If true, inserts newContent before startLine (endLine must equal startLine). If false or omitted, replaces lines from startLine to endLine. Defaults to false.",
-                default: false,
-              },
-            },
-            required: ["startLine", "endLine", "newContent"],
-          },
+            "A string containing the updated file content, with special placeholder {{ ... }} to represent unchanged code in between edits.",
         },
       },
-      required: ["editFilePath", "edits"],
+      required: ["editFilePath", "update"],
     },
   },
 };
