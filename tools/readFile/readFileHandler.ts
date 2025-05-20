@@ -19,16 +19,12 @@ const readFileHandler = async (
   }
 
   const content = fs.readFileSync(fullFilePath, "utf8");
-  const lines = content.split("\n");
-  const numberedContent = lines
-    .map((line, index) => `${index + 1}. ${line}`)
-    .join("\n");
 
   // Use AI to get relevant content if messages are available
-  if (lines.length >= 250 && !disableTruncation) {
-    return await getRelevantFileContent(filePath, numberedContent, messages);
+  if (content.split("\n").length >= 250 && !disableTruncation) {
+    return await getRelevantFileContent(filePath, content, messages);
   } else {
-    return numberedContent;
+    return content;
   }
 };
 
