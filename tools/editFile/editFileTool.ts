@@ -5,7 +5,7 @@ const editFileTool: ChatCompletionTool = {
   function: {
     name: "editFile",
     description:
-      "Use this tool to edit an existing file. Specify ONLY the precise lines of code that you wish to edit. NEVER specify or write out unchanged code. Instead, represent all unchanged code using this special placeholder: {{ ... }}. To edit multiple, non-adjacent lines of code in the same file, make a single call to this tool. Specify each edit in sequence with the special placeholder {{ ... }} to represent unchanged code in between edited lines. Here's an example of how to edit three non-adjacent lines of code at once:\n{{ ... }}\nedited_line_1\n{{ ... }}\nedited_line_2\n{{ ... }}\nedited_line_3\n{{ ... }}\nYou should minimize the unchanged code you write, but each edit should contain sufficient context of unchanged lines around the code you're editing to resolve ambiguity. DO NOT omit spans of pre-existing code (or comments) without using the {{ ... }} placeholder to indicate its absence. ALWAYS make sure to start and end your edit with the {{ ... }} placeholder, unless your edit includes the first and/or the last lines of code for the file. If you omit the placeholder, the less intelligent LLM resolving this edit may inadvertently delete these lines.",
+      "Use this tool to edit an existing file using search and replace blocks. Each edit should be specified using the following format:\n\n<<<<<<< SEARCH\n(exact code to search for)\n=======\n(replacement code)\n>>>>>>> REPLACE\n\nFor example:\n<<<<<<< SEARCH\nfunction oldFunction() {\n  return 'old';\n}\n=======\nfunction newFunction() {\n  return 'new';\n}\n>>>>>>> REPLACE\n\nMultiple search/replace blocks can be included in a single update. The system uses Levenshtein distance for fuzzy matching, allowing for minor differences in whitespace and formatting. Make sure the search text closely matches the existing code.",
     parameters: {
       type: "object",
       properties: {
@@ -16,7 +16,7 @@ const editFileTool: ChatCompletionTool = {
         update: {
           type: "string",
           description:
-            "A string containing the updated file content, with special placeholder {{ ... }} to represent unchanged code in between edits.",
+            "A string containing one or more search/replace blocks in the specified format.",
         },
         description: {
           type: "string",
