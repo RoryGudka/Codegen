@@ -21,7 +21,7 @@ export type Line = {
 };
 export type Lines = Line[];
 
-export interface Result {
+export interface PatienceDiffResult {
   lines: Lines;
   lineCountDeleted: number;
   lineCountInserted: number;
@@ -103,7 +103,7 @@ const addToResult = (
   aIndex: number,
   bLines: string[],
   bIndex: number,
-  result: Result
+  result: PatienceDiffResult
 ) => {
   if (bIndex === -1) result.lineCountDeleted++;
   else if (aIndex === -1) result.lineCountInserted++;
@@ -180,7 +180,7 @@ const populatePatienceDiff = (
   bLines: string[],
   bLow: number,
   bHigh: number,
-  result: Result
+  result: PatienceDiffResult
 ) => {
   // Match lines at beginning and add to result
   while (aLow <= aHigh && bLow <= bHigh && aLines[aLow] === bLines[bLow]) {
@@ -235,7 +235,7 @@ const populatePatienceDiff = (
 };
 
 export const patienceDiff = (aLines: string[], bLines: string[]) => {
-  const result: Result = {
+  const result: PatienceDiffResult = {
     lines: [],
     lineCountDeleted: 0,
     lineCountInserted: 0,
