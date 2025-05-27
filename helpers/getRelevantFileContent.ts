@@ -11,7 +11,7 @@ import { retryWithRateLimit } from "./retryWithRateLimit";
 export async function getRelevantFileContent(
   filePath: string,
   numberedContent: string,
-  messages: MessageParam[],
+  messages: MessageParam[]
 ): Promise<string> {
   try {
     const lines = numberedContent.split("\n");
@@ -36,7 +36,7 @@ Use these guidelines:
     // Call the AI model with retry for rate limits
     const response = await retryWithRateLimit(async () => {
       return await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 4000,
         system: systemPrompt,
         messages: [
@@ -53,7 +53,7 @@ Use these guidelines:
     if (block.type !== "text") throw new Error("Response was not text");
 
     const { relevantLineRanges, summaryOfExcludedLines } = JSON.parse(
-      block.text,
+      block.text
     ) as {
       relevantLineRanges: { start: number; end: number }[];
       summaryOfExcludedLines: string;
@@ -91,7 +91,7 @@ Use these guidelines:
     return JSON.stringify(
       { relevantFileContent: result.trim(), summaryOfExcludedLines },
       null,
-      2,
+      2
     );
   } catch (error) {
     console.error("Error in getRelevantFileContent:", error);
