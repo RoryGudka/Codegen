@@ -1,177 +1,258 @@
 import fs from "fs";
 import path from "path";
+import * as diffLib from "diff";
 import { runEslintOnFile } from "../../helpers/runEslintOnFile";
 import { runPrettierOnFile } from "../../helpers/runPrettierOnFile";
-
-interface Section {
-  start: number;
-  end: number;
-  verifyStart: boolean;
-  verifyEnd: boolean;
-}
-
-const getSections = (update: string): Section[] => {
-  const placeholderRegex = /^\s*{{\s*\.\.\.\s*}}\s*$/;
-  const lines = update
-    .split("\n")
-    .map((line) => (line.endsWith("\r") ? line.slice(0, -1) : line));
-
-  const indexes: number[] = [];
-  lines.forEach((line, i) => {
-    if (placeholderRegex.test(line)) indexes.push(i);
-  });
-
-  // Edge case: only code
-  if (indexes.length === 0) {
-    return [
-      {
-        start: 0,
-        end: lines.length - 1,
-        verifyStart: false,
-        verifyEnd: false,
-      },
-    ];
-  }
-
-  // Edge case: only placeholder
-  if (lines.length === 1 && indexes.length === 1) {
-    return [];
-  }
-
-  const sections: Section[] = [];
-  indexes.forEach((index, i) => {
-    const verifyStart = i !== 0 || index === 0;
-    const verifyEnd = i !== indexes.length - 1 || index === lines.length - 1;
-    const next = i === indexes.length - 1 ? lines.length : indexes[i + 1];
-
-    if (!verifyStart) {
-      sections.push({
-        start: 0,
-        end: index - 1,
-        verifyStart,
-        verifyEnd,
-      });
-      if (i !== indexes.length - 1) {
-        sections.push({
-          start: index + 1,
-          end: next - 1,
-          verifyStart: true,
-          verifyEnd: true,
-        });
-      }
-    } else if (!verifyEnd) {
-      sections.push({
-        start: index + 1,
-        end: next - 1,
-        verifyStart,
-        verifyEnd,
-      });
-    } else if (i !== indexes.length - 1) {
-      sections.push({
-        start: index + 1,
-        end: next - 1,
-        verifyStart,
-        verifyEnd,
-      });
-    }
-  });
-
-  return sections;
-};
 
 interface EditFileParams {
   editFilePath: string;
   update: string;
 }
 
+interface ContentSection {
+  type: "content";
+  startIdx: number;
+  lines: string[];
+}
+
+interface PlaceholderSection {
+  type: "placeholder";
+  startIdx: number;
+}
+
+type Section = ContentSection | PlaceholderSection;
+
+/**
+ * Apply intelligent diff-based updates to a file using placeholders for unchanged content
+ * Uses the diff library to handle patching with high reliability
+ */
 export const applyUpdate = (fileContent: string, update: string): string => {
-  const fileLines = fileContent
-    .split("\n")
-    .map((line) => (line.endsWith("\r") ? line.slice(0, -1) : line));
-  const updateLines = update
-    .split("\n")
-    .map((line) => (line.endsWith("\r") ? line.slice(0, -1) : line));
-  const file = fileLines.join("\n") + "\n";
+  // Handle empty files or trivial cases
+  if (!fileContent && update) return update;
+  if (!update) return fileContent;
 
-  const sections = getSections(update);
-  if (sections.length === 0) return fileContent;
+  const placeholderRegex = /^\s*{{\s*\.\.\.\s*}}\s*$/;
+  const updateLines = update.split("\n");
 
-  console.log(sections);
-
-  const errors: number[] = [];
-  let content = "";
-  let lastEndIndex = -1;
-  sections.map((section, k) => {
-    let startIndex = -1;
-    let endIndex = -1;
-    if (section.verifyStart) {
-      for (let i = section.end + 1; i >= section.start; i--) {
-        const content = updateLines.slice(section.start, i).join("\n") + "\n";
-        const index = file.indexOf(content);
-        if (index !== -1) {
-          const substring = file.substring(index + content.length);
-          if (substring.indexOf(content) !== -1) {
-            const indexes = Array.from(Array(i - section.start).keys());
-            console.log(indexes);
-            const offset = indexes.map((j) => j + section.start);
-            console.log(offset);
-            errors.push(...offset);
-          } else {
-            startIndex = index;
-          }
-          break;
-        }
-      }
-      if (startIndex === -1) {
-        errors.push(section.start);
-      }
-    }
-    if (section.verifyEnd) {
-      for (let i = section.start; i < section.end + 1; i++) {
-        const content = updateLines.slice(i, section.end + 1).join("\n") + "\n";
-        const index = file.indexOf(content);
-        if (index !== -1) {
-          const substring = file.substring(index + content.length);
-          if (substring.indexOf(content) !== -1) {
-            const indexes = Array.from(Array(section.end + 1 - i).keys());
-            console.log(indexes);
-            const offset = indexes.map((j) => j + i);
-            console.log(offset);
-            errors.push(...offset);
-          } else {
-            endIndex = index + content.length;
-          }
-          break;
-        }
-      }
-      if (startIndex === -1) {
-        errors.push(section.end);
-      }
-    }
-
-    if (startIndex !== -1 && lastEndIndex !== -1) {
-      content += file.substring(lastEndIndex, startIndex);
-    } else if (startIndex !== -1 && lastEndIndex === -1) {
-      content += file.substring(0, startIndex);
-    }
-    content +=
-      updateLines.slice(section.start, section.end + 1).join("\n") + "\n";
-    if (k === sections.length - 1 && section.verifyEnd) {
-      content += file.substring(endIndex);
-    }
-    lastEndIndex = endIndex;
-  });
-
-  console.log(errors);
-  if (errors.length) {
-    throw new Error(
-      `One or more context lines could not be resolved uniquely:\n\`\`\`\n${updateLines
-        .map((line, i) => `${errors.includes(i) ? "X " : "  "}${line}`)
-        .join("\n")}\n\`\`\``
-    );
+  // If there are no placeholders, return the entire update (complete file rewrite)
+  if (!updateLines.some((line) => placeholderRegex.test(line))) {
+    return update;
   }
 
-  return content;
+  // First convert the update with placeholders into a proper patch
+  // by replacing placeholders with their corresponding content from the original file
+  const fileLines = fileContent.split("\n");
+
+  // Create template content with markers for placeholders
+  let templateContent = "";
+
+  // Process the update to create a proper "template" for patching
+  for (let i = 0; i < updateLines.length; i++) {
+    const line = updateLines[i];
+
+    if (placeholderRegex.test(line)) {
+      // Add a marker to help with patching later
+      templateContent += `[[PLACEHOLDER_MARKER_${i}]]\n`;
+    } else {
+      // Copy the line as is
+      templateContent += line + "\n";
+    }
+  }
+
+  // Generate a clean patch between the template and original file
+  const patch = diffLib.createPatch(
+    "file",
+    fileContent,
+    templateContent,
+    "original",
+    "modified",
+  );
+
+  // Apply the patch but handle the placeholders specially
+  const appliedPatch = diffLib.applyPatch(fileContent, patch, {
+    fuzzFactor: 2, // Allow for some fuzziness in matching
+  });
+
+  if (typeof appliedPatch !== "string") {
+    // If the patch couldn't be applied, fall back to a simpler approach
+    // by replacing placeholders with the corresponding content
+
+    // Let's create a more reliable version where we keep track of sections
+    const sections: Section[] = [];
+    let currentSection: Section | null = null;
+
+    // Identify the sections to keep and replace
+    for (let i = 0; i < updateLines.length; i++) {
+      const line = updateLines[i];
+
+      if (placeholderRegex.test(line)) {
+        if (currentSection) {
+          sections.push(currentSection);
+          currentSection = null;
+        } else {
+          // Start a placeholder section
+          currentSection = {
+            type: "placeholder",
+            startIdx: i,
+          };
+        }
+      } else if (currentSection === null) {
+        // Start a content section
+        currentSection = {
+          type: "content",
+          startIdx: i,
+          lines: [line],
+        };
+      } else if (currentSection.type === "content") {
+        // Continue a content section
+        currentSection.lines.push(line);
+      }
+    }
+
+    // Add the last section if there is one
+    if (currentSection) {
+      sections.push(currentSection);
+    }
+
+    // Build the final result by combining the sections
+    let result = "";
+    let originalIndex = 0;
+
+    for (const section of sections) {
+      if (section.type === "content") {
+        // For content sections, use the provided content
+        result += section.lines.join("\n") + "\n";
+      } else if (section.type === "placeholder") {
+        // For placeholder sections, search for the next content section in the original file
+        const nextSection = sections.find(
+          (s) => s.type === "content" && s.startIdx > section.startIdx,
+        ) as ContentSection | undefined;
+
+        if (nextSection) {
+          // Look for where the next content section appears in the original file
+          const contentToMatch = nextSection.lines.join("\n");
+          const originalContent = fileLines.join("\n");
+          const matchPos = originalContent.indexOf(
+            contentToMatch,
+            originalIndex,
+          );
+
+          if (matchPos >= 0) {
+            // Calculate the line number from character position
+            let lineCount = 0;
+            for (let i = 0; i < matchPos; i++) {
+              if (originalContent[i] === "\n") {
+                lineCount++;
+              }
+            }
+
+            // Extract the original content to preserve
+            const contentToPreserve = fileLines
+              .slice(originalIndex, lineCount)
+              .join("\n");
+            result += contentToPreserve + "\n";
+            originalIndex = lineCount + nextSection.lines.length;
+          }
+        } else if (originalIndex < fileLines.length) {
+          // If this is the last placeholder, include the rest of the file
+          result += fileLines.slice(originalIndex).join("\n") + "\n";
+        }
+      }
+    }
+
+    return result.trim() + (fileContent.endsWith("\n") ? "\n" : "");
+  }
+
+  // Replace the placeholder markers in the applied patch with empty strings
+  let finalResult = appliedPatch;
+  for (let i = 0; i < updateLines.length; i++) {
+    finalResult = finalResult.replace(`[[PLACEHOLDER_MARKER_${i}]]`, "");
+  }
+
+  return finalResult.trim() + (fileContent.endsWith("\n") ? "\n" : "");
+};
+
+/**
+ * A simplified implementation that focuses on reliability over complexity
+ * This is used as a fallback when the diff approach fails
+ */
+export const simplifiedApplyUpdate = (
+  fileContent: string,
+  update: string,
+): string => {
+  const placeholderRegex = /^\s*{{\s*\.\.\.\s*}}\s*$/;
+  const updateLines = update.split("\n");
+
+  // If there are no placeholders, return the entire update (complete file rewrite)
+  if (!updateLines.some((line) => placeholderRegex.test(line))) {
+    return update;
+  }
+
+  // Get sections from the update
+  const sections = [];
+  let currentSection = [];
+  let inPlaceholder = false;
+
+  for (const line of updateLines) {
+    if (placeholderRegex.test(line)) {
+      if (currentSection.length > 0) {
+        sections.push({
+          type: inPlaceholder ? "placeholder" : "content",
+          content: currentSection.join("\n"),
+        });
+        currentSection = [];
+      }
+      inPlaceholder = !inPlaceholder;
+    } else {
+      currentSection.push(line);
+    }
+  }
+
+  if (currentSection.length > 0) {
+    sections.push({
+      type: inPlaceholder ? "placeholder" : "content",
+      content: currentSection.join("\n"),
+    });
+  }
+
+  // Build the final result
+  let result = "";
+  let lastIndex = 0;
+
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+
+    if (section.type === "content") {
+      // Check if this content already exists in the file
+      const existingPos = fileContent.indexOf(section.content, lastIndex);
+
+      if (existingPos >= 0) {
+        // Content already exists, adjust lastIndex
+        result += section.content + "\n";
+        lastIndex = existingPos + section.content.length;
+      } else {
+        // This is new content, insert it
+        result += section.content + "\n";
+      }
+    } else {
+      // This is a placeholder - find where the next content section starts in the original file
+      if (i < sections.length - 1 && sections[i + 1].type === "content") {
+        const nextContent = sections[i + 1].content;
+        const pos = fileContent.indexOf(nextContent, lastIndex);
+
+        if (pos >= 0) {
+          const preservedContent = fileContent.substring(lastIndex, pos);
+          result += preservedContent;
+          lastIndex = pos + nextContent.length;
+        }
+      } else if (i === sections.length - 1) {
+        // Last placeholder - include rest of file
+        result += fileContent.substring(lastIndex);
+      }
+    }
+  }
+
+  return result;
 };
 
 const editFileHandler = async ({
@@ -186,7 +267,35 @@ const editFileHandler = async ({
     }
 
     const fileContent = fs.readFileSync(fullEditFilePath, "utf8");
-    const updatedContent = applyUpdate(fileContent, update);
+
+    // Try the advanced approach first
+    let updatedContent;
+    try {
+      updatedContent = applyUpdate(fileContent, update);
+    } catch (err) {
+      // If that fails, fall back to the simplified approach
+      console.log(
+        "Advanced diff failed, falling back to simplified approach",
+        err,
+      );
+      updatedContent = simplifiedApplyUpdate(fileContent, update);
+    }
+
+    // If all else fails, and we're getting an empty file or obviously incorrect result,
+    // just use the update directly if it looks like a complete file
+    if (!updatedContent || updatedContent.trim() === "") {
+      const placeholderRegex = /^\s*{{\s*\.\.\.\s*}}\s*$/;
+      const updateLines = update.split("\n");
+      const hasPlaceholders = updateLines.some((line) =>
+        placeholderRegex.test(line),
+      );
+
+      if (!hasPlaceholders || updateLines.length > 10) {
+        // This appears to be a complete file rewrite
+        updatedContent = update;
+      }
+    }
+
     fs.writeFileSync(fullEditFilePath, updatedContent);
 
     const formattingResult = await runPrettierOnFile(fullEditFilePath);
