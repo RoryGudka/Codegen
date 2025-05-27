@@ -22,7 +22,7 @@ export async function createAnthropicStream(
     // Use the retry function to handle rate limits
     const stream = await retryWithRateLimit(async () => {
       return await anthropic.messages.create({
-        model: "claude-3-7-sonnet-20250219",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 64000,
         stream: true,
         tools: produce(formatted, (draft) => {

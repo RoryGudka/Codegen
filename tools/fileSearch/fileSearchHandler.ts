@@ -7,17 +7,21 @@ interface FileSearchParams {
 }
 
 function fileSearchHandler({ query }: FileSearchParams): string {
-  const files = getFileStructure().split("\n");
+  try {
+    const files = getFileStructure().split("\n");
 
-  // Perform fuzzy search
-  const results = fuzzysort.go(query, files, {
-    limit: 10, // Cap results at 10
-  });
+    // Perform fuzzy search
+    const results = fuzzysort.go(query, files, {
+      limit: 10, // Cap results at 10
+    });
 
-  // Extract matched file paths from results
-  const matchedFiles = results.map((result) => result.target);
+    // Extract matched file paths from results
+    const matchedFiles = results.map((result) => result.target);
 
-  return matchedFiles.join("\n");
+    return matchedFiles.join("\n");
+  } catch (e) {
+    return `Error: ${e}`;
+  }
 }
 
 export { fileSearchHandler };

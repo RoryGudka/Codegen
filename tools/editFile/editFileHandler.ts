@@ -195,7 +195,7 @@ const editFileHandler = async ({
     return `File edited successfully.\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}\n\nThis is the final file content. If this is not correct, edit the file again, rewriting the whole file without placeholders if necessary:\n\n${updatedContent}`;
   } catch (e: any) {
     console.error(e);
-    return `Error: ${e.message}`;
+    return `Failed to edit file: ${e.message}`;
   }
 };
 

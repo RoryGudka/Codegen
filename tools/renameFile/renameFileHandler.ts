@@ -10,23 +10,23 @@ const renameFileHandler = async ({
   filePath,
   newFileName,
 }: RenameFileParams): Promise<string> => {
-  const fullFilePath = path.join(process.cwd(), filePath);
-  const directoryPath = path.dirname(fullFilePath);
-  const newFilePath = path.join(directoryPath, newFileName);
-
-  if (!fs.existsSync(fullFilePath)) {
-    return "File path does not exist. Cannot rename file.";
-  }
-
   try {
+    const fullFilePath = path.join(process.cwd(), filePath);
+    const directoryPath = path.dirname(fullFilePath);
+    const newFilePath = path.join(directoryPath, newFileName);
+
+    if (!fs.existsSync(fullFilePath)) {
+      return "File path does not exist. Cannot rename file.";
+    }
+
     if (path.dirname(newFileName) !== ".") {
       throw new Error("Directory change detected. Operation not allowed.");
     }
 
     fs.renameSync(fullFilePath, newFilePath);
     return "File renamed successfully.";
-  } catch (error: any) {
-    return `Failed to rename file: ${error.message}`;
+  } catch (e) {
+    return `Failed to rename file: ${e}`;
   }
 };
 

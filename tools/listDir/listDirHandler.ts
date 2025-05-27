@@ -8,17 +8,17 @@ interface ListDirParams {
 const listDirHandler = async ({
   relativeWorkspacePath,
 }: ListDirParams): Promise<string> => {
-  const fullPath = path.join(process.cwd(), relativeWorkspacePath);
-
-  if (!fs.existsSync(fullPath)) {
-    return "Directory does not exist.";
-  }
-
   try {
+    const fullPath = path.join(process.cwd(), relativeWorkspacePath);
+
+    if (!fs.existsSync(fullPath)) {
+      return "Directory does not exist.";
+    }
+
     const files = fs.readdirSync(fullPath);
     return files.join("\n");
-  } catch (error: any) {
-    return `Failed to list directory contents. Error: ${error.message}`;
+  } catch (e) {
+    return `Failed to list directory contents: ${e}`;
   }
 };
 

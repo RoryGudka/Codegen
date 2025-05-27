@@ -6,17 +6,17 @@ interface DeleteFileParams {
 }
 
 const deleteFileHandler = async ({ deleteFilePath }: DeleteFileParams) => {
-  const fullDeleteFilePath = path.join(process.cwd(), deleteFilePath);
-
-  if (!fs.existsSync(fullDeleteFilePath)) {
-    return "File path does not exist. Unable to delete non-existent file.";
-  }
-
   try {
+    const fullDeleteFilePath = path.join(process.cwd(), deleteFilePath);
+
+    if (!fs.existsSync(fullDeleteFilePath)) {
+      return "File path does not exist. Unable to delete non-existent file.";
+    }
+
     fs.unlinkSync(fullDeleteFilePath);
     return "File deleted successfully.";
   } catch (error: any) {
-    return `Failed to delete file. Error: ${error.message}`;
+    return `Failed to delete file: ${error.message}`;
   }
 };
 

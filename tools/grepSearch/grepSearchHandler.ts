@@ -142,8 +142,8 @@ async function grepSearchHandler({
 
       return results || "No matches found.";
     }
-  } catch (error: any) {
-    return `Error: ${error.message}`;
+  } catch (e) {
+    return `Error: ${e}`;
   }
 }
 

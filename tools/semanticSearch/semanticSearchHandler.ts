@@ -12,8 +12,8 @@ async function semanticSearchHandler({
     return files
       .map(([filePath, content]) => `File: ${filePath}\nContent:\n${content}`)
       .join("\n\n");
-  } catch (error: any) {
-    return `Error: ${error.message}`;
+  } catch (error) {
+    return `Error: ${error}`;
   }
 }
 
