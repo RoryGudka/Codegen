@@ -1,5 +1,7 @@
+import { anthropic } from "../../clients/anthropic";
 import fs from "fs";
 import path from "path";
+import { retryWithRateLimit } from "../../helpers/retryWithRateLimit";
 import { runEslintOnFile } from "../../helpers/runEslintOnFile";
 import { runPrettierOnFile } from "../../helpers/runPrettierOnFile";
 
@@ -34,7 +36,7 @@ function levenshteinDistance(str1: string, str2: string): number {
       matrix[j][i] = Math.min(
         matrix[j][i - 1] + 1, // deletion
         matrix[j - 1][i] + 1, // insertion
-        matrix[j - 1][i - 1] + indicator, // substitution
+        matrix[j - 1][i - 1] + indicator // substitution
       );
     }
   }
@@ -51,7 +53,7 @@ function normalizeText(text: string): string {
 function parseSearchReplaceBlocks(update: string): SearchReplaceBlock[] {
   const blocks: SearchReplaceBlock[] = [];
   const regex =
-    /<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE/g;
+    /<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n?>>>>>>> REPLACE/g;
 
   let match;
   while ((match = regex.exec(update)) !== null) {
@@ -69,7 +71,7 @@ function parseSearchReplaceBlocks(update: string): SearchReplaceBlock[] {
 // Find the best match for search text in file content using Levenshtein distance
 function findBestMatch(
   fileLines: string[],
-  searchText: string,
+  searchText: string
 ): { startIndex: number; endIndex: number; distance: number } | null {
   const normalizedSearchText = normalizeText(searchText);
   const searchLines = normalizedSearchText.split("\n");
@@ -112,7 +114,7 @@ function findBestMatch(
 // Apply all search/replace blocks to the file content
 function applySearchReplaceBlocks(
   fileContent: string,
-  blocks: SearchReplaceBlock[],
+  blocks: SearchReplaceBlock[]
 ): { success: boolean; result: string; errors: string[] } {
   const fileLines = fileContent.split("\n");
   const errors: string[] = [];
@@ -133,7 +135,7 @@ function applySearchReplaceBlocks(
   for (const { block, match } of validBlocks) {
     if (!match) {
       errors.push(
-        `Could not find match for search text: "${block.searchText.substring(0, 50)}..."`,
+        `Could not find match for search text: "${block.searchText.substring(0, 50)}..."`
       );
       continue;
     }
@@ -143,17 +145,17 @@ function applySearchReplaceBlocks(
     fileLines.splice(
       match.startIndex,
       match.endIndex - match.startIndex + 1,
-      ...replaceLines,
+      ...replaceLines
     );
   }
 
   // Add errors for blocks that couldn't find matches
   const failedBlocks = blocksWithPositions.filter(
-    ({ match }) => match === null,
+    ({ match }) => match === null
   );
   for (const { block } of failedBlocks) {
     errors.push(
-      `Could not find match for search text: "${block.searchText.substring(0, 50)}..."`,
+      `Could not find match for search text: "${block.searchText.substring(0, 50)}..."`
     );
   }
 
@@ -162,6 +164,62 @@ function applySearchReplaceBlocks(
     result: fileLines.join("\n"),
     errors,
   };
+}
+
+// Backup function to create file content using Anthropic Claude 3.5 Haiku
+async function createFileContentWithAnthropic(
+  originalContent: string,
+  update: string,
+  description: string
+): Promise<string> {
+  const systemPrompt = `You are a code editor assistant. Your task is to modify the provided file content based on the user's update instructions and description.
+
+Rules:
+1. Apply the requested changes as described in the update and description
+2. Preserve the original file structure and formatting style as much as possible
+3. Only modify what is specifically requested
+4. Return only the complete modified file content, without any explanations or markdown formatting
+5. If the update contains search/replace blocks in the format <<<<<<< SEARCH ... ======= ... >>>>>>> REPLACE, apply those changes
+6. If the update is in a different format, interpret it as general instructions and apply the changes accordingly
+
+Description of desired changes: ${description}`;
+
+  const userPrompt = `Original file content:
+\`\`\`
+${originalContent}
+\`\`\`
+
+Update instructions:
+\`\`\`
+${update}
+\`\`\`
+
+Please provide the complete modified file content:`;
+
+  try {
+    const response = await retryWithRateLimit(async () => {
+      return await anthropic.messages.create({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 8000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
+      });
+    });
+
+    const block = response.content[0];
+    if (block.type !== "text") {
+      throw new Error("Response was not text");
+    }
+
+    return block.text.trim();
+  } catch (error) {
+    throw new Error(`Anthropic backup call failed: ${error}`);
+  }
 }
 
 const editFileHandler = async ({
@@ -177,10 +235,7 @@ const editFileHandler = async ({
     }
 
     const fileContent = fs.readFileSync(fullEditFilePath, "utf8");
-
-    // Parse search/replace blocks from the update
     const blocks = parseSearchReplaceBlocks(update);
-
     if (blocks.length === 0) {
       return "No valid search/replace blocks found in the update. Please use the correct format:\n<<<<<<< SEARCH\n(search text)\n=======\n(replace text)\n>>>>>>> REPLACE";
     }
@@ -188,11 +243,32 @@ const editFileHandler = async ({
     // Apply the search/replace operations
     const { success, result, errors } = applySearchReplaceBlocks(
       fileContent,
-      blocks,
+      blocks
     );
 
     if (!success) {
-      return `Failed to apply some search/replace operations:\n${errors.join("\n")}\n\nPlease check that the search text exactly matches the existing code.`;
+      // Try backup method using Anthropic Claude 3.5 Haiku
+      try {
+        console.log(
+          "Search/replace failed, attempting backup with Claude 3.5 Haiku..."
+        );
+        const backupResult = await createFileContentWithAnthropic(
+          fileContent,
+          update,
+          description
+        );
+
+        // Write the backup result to the file
+        fs.writeFileSync(fullEditFilePath, backupResult);
+
+        // Run formatting and linting
+        const formattingResult = await runPrettierOnFile(fullEditFilePath);
+        const lintingResult = await runEslintOnFile(fullEditFilePath);
+
+        return `Search/replace method failed, but backup with Claude 3.5 Haiku succeeded.\nOriginal errors:\n${errors.join("\n")}\n\nFile edited successfully using AI backup method.\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}`;
+      } catch (backupError) {
+        return `Both search/replace and backup methods failed.\nSearch/replace errors:\n${errors.join("\n")}\n\nBackup method error:\n${backupError}\n\nPlease check that the search text exactly matches the existing code or try a different approach.`;
+      }
     }
 
     // Write the updated content to the file
@@ -202,7 +278,7 @@ const editFileHandler = async ({
     const formattingResult = await runPrettierOnFile(fullEditFilePath);
     const lintingResult = await runEslintOnFile(fullEditFilePath);
 
-    return `File edited successfully using search/replace method.\nDescription: ${description}\nApplied ${blocks.length} search/replace operation(s).\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}`;
+    return `File edited successfully using search/replace method.\nApplied ${blocks.length} search/replace operation(s).\nFormatting result:\n${formattingResult}\nLinting result:\n${lintingResult}`;
   } catch (e: any) {
     console.error(e);
     return `Failed to edit file: ${e.message}`;

@@ -5,7 +5,7 @@ const editFileTool: ChatCompletionTool = {
   function: {
     name: "editFile",
     description:
-      "Use this tool to edit an existing file using search and replace blocks. Each edit should be specified using the following format:\n\n<<<<<<< SEARCH\n(exact code to search for)\n=======\n(replacement code)\n>>>>>>> REPLACE\n\nFor example:\n<<<<<<< SEARCH\nfunction oldFunction() {\n  return 'old';\n}\n=======\nfunction newFunction() {\n  return 'new';\n}\n>>>>>>> REPLACE\n\nMultiple search/replace blocks can be included in a single update. The system uses Levenshtein distance for fuzzy matching, allowing for minor differences in whitespace and formatting. Make sure the search text closely matches the existing code.",
+      "Use this tool to edit an existing file using search and replace blocks. Each edit should be specified using the following format:\n\n<<<<<<< SEARCH\n(exact code to search for)\n=======\n(replacement code)\n>>>>>>> REPLACE\n\nFor example:\n<<<<<<< SEARCH\nfunction oldFunction() {\n  return 'old';\n}\n=======\nfunction newFunction() {\n  return 'new';\n}\n>>>>>>> REPLACE\n\nMultiple search/replace blocks can be included in a single update; simply place another search and replace block after the other with a newline character in between. Your search should exactly match the original code you're editing, and should be unique in order to resolve properly. Do not omit whitespace.",
     parameters: {
       type: "object",
       properties: {
